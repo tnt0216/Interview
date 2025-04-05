@@ -18,9 +18,22 @@ https://www.mathworks.com/downloads/?s_tid=rh_bn_dl
 
 To open the UI, either double-click on the "Manual_UI.mlapp" tool and select "open with" MATLAB R2023a. Or whichever compatible version of MATLAB is installed. Double left-clicking the "Manual_UI.mlapp" tool will open the application on the most current version installed or the default version of MATLAB. Sometimes the GUI will not open when double left clicking, and the user will need to run the "Manual_UI.mlapp" file from MATLAB's "Current Folder" area.
 
+NAVIGATING FOLDERS:
+------------------
+Data: This folder contains example inputs for testing and outputs.
+
+Backend: This folder contains the separate backend astrodynamics functions used by the main function. (written by Cole Stoumbaugh and Taylor Tallerday (ME)) - These functions have been further categorized to indicate which functions I wrote and which were written by Cole. A MATLAB file containing the full working backend code has also been included.
+
+Lockheed Code: This folder contains pre-existing functions written by Lockheed Martin employees.
+
+UI: This folder contains the functions for the user interface (written by Matt Terry and Taylor Phair (NOT ME))
+
+full_backend_code.m: The final MATLAB file that contains all the functions including the main.
 
 HOW TO USE:
 -----------
+
+UI NOTES:
 The "Manual Input" tab allows the user to input site information in km, degrees, and seconds. When the user selects "Run", the manual output window will be populated with COE information, and new visible site locations as well as all sites available.
 
 The "Manual Output" tab is where this information is output. The user has the option to save this information through a "browse" function. The "*txt" will need to be changed to "All Files" and the name of the file will need a readable extension such as ".txt".
