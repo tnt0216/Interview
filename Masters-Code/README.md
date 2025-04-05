@@ -25,4 +25,5 @@ HOW TO USE:
 ---------------
 1) Download appropriate files: main, Excel, and function file
 2) Make sure that the right Excel file is being called and the proper range is defined in the main
-3) Change the file paths for saving the graphs to the desktop. QUICK TIP: Use cntr f "save plot" to find the instances to change in the functions file.
+3) Change the file paths for saving the graphs to the desktop.
+QUICK TIP: Use cntr f "save plot" to find the instances to change in the functions file.
