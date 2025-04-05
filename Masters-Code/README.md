@@ -1,6 +1,5 @@
-*************************
 Master's Research Project
-************************
+=========================
 
 
 PROJECT DESCRIPTION:
