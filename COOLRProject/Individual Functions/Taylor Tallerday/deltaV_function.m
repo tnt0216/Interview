@@ -1,4 +1,4 @@
-% Delta And TOF Calculations Part 1 (Homann Transfer)
+% Delta And TOF Calculations Part 1 (Hohmann Transfer)
 function deltaV(Velocity, Radius1, Radius2)
 
     at = (Radius1 + Radius2)/2;
