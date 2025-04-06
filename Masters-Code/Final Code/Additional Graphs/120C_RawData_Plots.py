@@ -12,7 +12,7 @@ def makeplot(sample_names, ranges, freq_data, data, namedata):
     polymer_colors = []
     test_styles = []
 
-    # Plot for each test in the lot
+    # Plotting for each test in the lot
     plt.figure(figsize=(10, 6))
     plt.title(f"{namedata} Data for Polymer Lots (120°C)")
     plt.xlabel("Frequency [Hz]")
