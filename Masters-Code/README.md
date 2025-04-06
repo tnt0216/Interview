@@ -24,10 +24,14 @@ Functions: This file contains all the various functions that each of the main sc
 HOW TO USE:
 ---------------
 1) Download appropriate files: the function file (used by each main), the main you would like to run (rheology_dataset_main, high_res_rheology_main, or tensile_dataset_main), and the dataset/Excel file.
-   Notes:
-     When running "rheology_dataset_main": The default dataset has been set to "2055-2060 Series 120C Batch 2 Outliers.xlsx".
-     When running "high_res_rheology_main": The corresponding dataset is titled "High Precision 2055-2060 Series 170C.xlsx".
-     When running "tensile_dataset_main": The default dataset has been set to "Tensile Data 2055-2060 40C.xlsx".
-   *** If you would like to run files other than the defaults, you will have to comment out the default and uncomment the dataset you would like          to run. The variable "original_ranges" will also need to be updated to correspond to the chosen dataset. 
-2) Change the file paths for saving the graphs to the desktop. 
+
+Notes:
+- When running "rheology_dataset_main": The default dataset has been set to "2055-2060 Series 120C Batch 2 Outliers.xlsx".
+- When running "high_res_rheology_main": The corresponding dataset is titled "High Precision 2055-2060 Series 170C.xlsx".
+- When running "tensile_dataset_main": The default dataset has been set to "Tensile Data 2055-2060 40C.xlsx".
+  
+*** If you would like to run files other than the defaults, you will have to comment out the default and uncomment the dataset you would like          to run. The variable "original_ranges" will also need to be updated to correspond to the chosen dataset.
+  
+3) Change the file paths for saving the graphs to the desktop.
+
 QUICK TIP: Use cntr f "save plot" to find the instances to change in the functions file.
