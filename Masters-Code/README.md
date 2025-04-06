@@ -32,6 +32,6 @@ Notes:
   
 *** If you would like to run files other than the defaults, you will have to comment out the default and uncomment the dataset you would like          to run. The variable "original_ranges" will also need to be updated to correspond to the chosen dataset.
   
-3) Change the file paths for saving the graphs to the desktop.
+2) Change the file paths for saving the graphs to the desktop.
 
 QUICK TIP: Use cntr f "save plot" to find the instances to change in the functions file.
