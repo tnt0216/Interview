@@ -27,7 +27,7 @@ for index, sheet_name in enumerate(sheet_names):
 
     df['Polymer'] = df['Polymer'].astype(str)
 
-    # Filter out polymer '30035' and reorder the remaining polymers
+    # Filtering out polymer '30035' and reorder the remaining polymers
     ordered_polymers = ['2059', '2058', '2055', '2060', '2056', '2057']
     df_filtered = df[df['Polymer'].isin(ordered_polymers)]
     df_filtered['Polymer'] = pd.Categorical(df_filtered['Polymer'], categories=ordered_polymers, ordered=True)
@@ -39,26 +39,26 @@ for index, sheet_name in enumerate(sheet_names):
 
     print(df_filtered)
 
-    # Set the positions for each group of bars
+    # Setting the positions for each group of bars
     bar_width = 0.2  # Width of each bar
     x_positions = np.arange(len(ordered_polymers))  # Base positions for each polymer
 
-    # Get unique frequencies
+    # Getting unique frequencies
     frequencies = df_filtered['Frequency'].unique()
 
-    # Define custom colors for the histograms
+    # Defining custom colors for the histograms
     colors = ['paleturquoise', 'navajowhite', 'mediumspringgreen', 'violet']  # You can adjust these colors
 
     print(df_filtered)
 
     fig, ax = plt.subplots(figsize=(8, 6))
 
-    # Plot bars for each frequency, shifting the x_positions for each one
+    # Plotting bars for each frequency, shifting the x_positions for each one
     for i, freq in enumerate(frequencies):
         # Filter the DataFrame for the current frequency
         freq_data = df_filtered[df_filtered['Frequency'] == freq]
 
-        # Align the x positions for the polymer, offset by the index of the frequency
+        # Aligning the x positions for the polymer, offset by the index of the frequency
         ax.bar(x_positions + i * bar_width, freq_data['Distance from 30035'],
                bar_width, label=f'{freq} rad/s', yerr=freq_data['Radii'],
                capsize=5, color=colors[i % len(colors)])  # Assign color to each bar
@@ -68,14 +68,14 @@ for index, sheet_name in enumerate(sheet_names):
     ax.set_ylabel('Scaled Distance from Lot 30035', fontsize=12)
     # ax.set_title('Distance from 30035 for Different Polymers and Frequencies', fontsize=14)
 
-    # Set x-axis ticks to be in the middle of the grouped bars
+    # Setting x-axis ticks to be in the middle of the grouped bars
     ax.set_xticks(x_positions + bar_width * (len(frequencies) - 1) / 2)
     ax.set_xticklabels(ordered_polymers)
 
     # Y-axis formatting
     ax.tick_params(axis='y', labelsize=12)
 
-    # Add a legend
+    # Adding a legend
     ax.legend(title='Cutoff Frequency')
 
     plt.tight_layout()
