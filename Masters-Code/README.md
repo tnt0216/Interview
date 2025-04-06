@@ -15,7 +15,7 @@ In the Masters-Code folder, there is a folder named "Final Code" that contains s
 
 Additional Graphs: Contains a few short scripts for additional graphs we wanted to use in our papers.
   
-Excel Files: Contains all of the final data used for our scientific journal and my thesis. Subfolders are separating the rheological and tensile datasets. The first three Excel files were focused on in our analysis and are referenced in the rheology_dataset_main. We only collected one full high-res dataset, which was referenced in the high_res_dataset_main. Finally, the tensile datasets were referenced in the tensile_dataset_main.
+Excel Files: Contains all of the final data used for our scientific journal and my thesis. Subfolders are separating the rheological and tensile datasets. The first three Excel files were focused on in our analysis and are referenced in the rheology_dataset_main. We collected one full high-res dataset, which was referenced in the high_res_dataset_main to investigate the importance of high-frequency data. Finally, the tensile datasets were referenced in the tensile_dataset_main.
 
 Mains: This folder contains the main functions/main scripts.
 
