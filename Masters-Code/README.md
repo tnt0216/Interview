@@ -15,7 +15,12 @@ In the Masters-Code folder, there is a folder named "Final Code" that contains s
 
 Additional Graphs: Contains a few short scripts for additional graphs we wanted to use in our papers.
   
-Excel Files: Contains all of the final data used for our scientific journal and my thesis. Subfolders are separating the rheological and tensile datasets. The first three Excel files were focused on in our analysis and are referenced in the rheology_dataset_main. We collected one full high-res dataset, which was referenced in the high_res_dataset_main to investigate the importance of high-frequency data. Finally, the tensile datasets were referenced in the tensile_dataset_main.
+Excel Files: Contains all of the final data used for our scientific journal and my thesis. Subfolders are separating the rheological and tensile datasets.
+
+About the Datasets:
+- The rheology datasets were the primary datasets used in our analysis and were the focus of the research journal and thesis. There were three rheology datasets for temperatures of 70°C, 120°C, and 170°C used by "rheology_dataset_main". Each of these datasets had undergone data preprocessing by applying Chavunet's Criteria to identify outliers in the dataset. These outliers were taken completely out before running the data through these scripts. We compared our results to an experimental approach of assessing rheological similarity through the crossover point and zero-shear viscosity. These outliers were not included and handled in this code because we wanted to have identical datasets to the experimental approach for direct comparisons of performance.
+- We investigated the impact of high-frequency data on our results to determine if it was worthwhile to perform larger frequency sweeps. We determined that it was not worthwhile to pursue, however, the code and high-res dataset have been included and are referred to as "high_res_rheology_main" and "High Precision 2055-2060 Series 170C.xlsx".
+- Four temperature tensile datasets were collected for analysis, which were 24°C, 40°C, 50°C, and 70°C, respectively. These datasets had to be adjusted in preprocessing so that they did not contain negative values, each test contained the same number of sampled datapoints/dimensions, and each of the datapoints being compared to each other corresponded to the same strain value, the first dimension/first value in each test was set to zero and following datapoints were shifted accordingly. 
 
 Mains: This folder contains the main functions/main scripts.
 
@@ -34,4 +39,4 @@ Notes:
   
 2) Change the file paths for saving the graphs to the desktop.
 
-QUICK TIP: Use cntr f "save plot" to find the instances to change in the functions file.
+QUICK TIP: Use cntr+f and type "save plot" to find the instances to change in the functions file.
