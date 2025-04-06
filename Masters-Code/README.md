@@ -7,7 +7,7 @@ The purpose of this project is to assess the rheological and tensile similarity 
 
 VERSION REQUIREMENTS:
 --------------------
-These scripts were written using Python 3.9.13.
+These scripts were written using Python 3.9.13. I have included the requirements.txt for additional information.
 
 NAVIGATING FOLDERS:
 -------------------
