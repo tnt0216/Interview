@@ -11,7 +11,7 @@ These scripts were written using Python 3.9.13. I have included the requirements
 
 NAVIGATING FOLDERS:
 -------------------
-In the Masters-Code folder, there is a folder named "Final Code" that contains subfolders titled "Additional Graphs", "Excel Files", and "Mains". 
+In the Masters Code folder, there are subfolders titled "Additional Graphs", "Excel Files", and "Mains". 
 
 Additional Graphs: Contains a few short scripts for additional graphs we wanted to use in our papers.
   
@@ -35,8 +35,8 @@ Notes:
 - When running "high_res_rheology_main": The corresponding dataset is titled "High Precision 2055-2060 Series 170C.xlsx".
 - When running "tensile_dataset_main": The default dataset has been set to "Tensile Data 2055-2060 40C.xlsx".
   
-*** If you would like to run files other than the defaults, you will have to comment out the default and uncomment the dataset you would like          to run. The variable "original_ranges" will also need to be updated to correspond to the chosen dataset.
+*** If you would like to run files other than the defaults, you will have to comment out the default and uncomment the dataset you would like to run. The variable "original_ranges" will also need to be updated to correspond to the chosen dataset.
   
-2) Change the file paths for saving the graphs to the desktop.
+2) Change the file paths to save the graphs to the desktop.
 
 QUICK TIP: Use cntr+f and type "save plot" to find the instances to change in the functions file.
