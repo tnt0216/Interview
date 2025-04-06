@@ -18,7 +18,7 @@ def readindata(data):
     loss_row = []
     vis_row = []
 
-    # Reading data from sheets
+    # Readinging data from sheets
     for index, sheet_name in enumerate(sheet_names):
         if index == 0:  # Skip the first sheet
             print("Ed's Calculations: ")
@@ -26,7 +26,7 @@ def readindata(data):
             print(eds_data)
             continue
 
-        # Read specified columns from each sheet
+        # Reading specified columns from each sheet
         df = pd.read_excel(xls, sheet_name=sheet_name, usecols="D:G")
         freq_row.append(df.iloc[:, 0].tolist())
         storage_row.append(df.iloc[:, 1].tolist())
@@ -48,51 +48,51 @@ def makingplots(freq_data, storage_data, loss_data, vis_data, sample_name):
     loss modulus, and viscosity data for all tests of a single polymer lot, with each test having a unique color.
     """
 
-    # Generate a unique color for each test
+    # Generating a unique color for each test
     test_colors = ['#FF5733', '#33FF57', '#3357FF', '#FF33A8', '#A833FF', '#33FFF8', '#F8FF33']
     marker_styles = ['o', 's', '^', 'v', 'D', '>', 'p']  # Marker styles for visual distinction
 
     num_tests = len(vis_data)  # Number of tests (rows in the data)
 
-    # Expand the colors list if there are more tests than colors
+    # Expanding the colors list if there are more tests than colors
     if num_tests > len(test_colors):
         test_colors = test_colors * ((num_tests // len(test_colors)) + 1)
 
-    # Create the figure and axes
+    # Creating the figure and axes
     fig, ax = plt.subplots(figsize=(6.5, 6))
     ax.set_title(f"{sample_name} Raw Data for 120°C Dataset", fontsize=12)
     ax.set_xlabel('Frequency [Hz]', fontsize=12)
     ax.set_ylabel("G' [Pa], G'' [Pa], |η*| [Pa·s]", fontsize=12)
 
-    # Ensure consistent frequency axis data
+    # Ensuring consistent frequency axis data
     freq_data_list = freq_data.iloc[0].tolist()
 
-    # Plot each test
+    # Plotting each test
     for idx, (vis_row, storage_row, loss_row) in enumerate(zip(vis_data.iterrows(),
                                                                storage_data.iterrows(),
                                                                loss_data.iterrows())):
-        # Extract data for this test
+        # Extracting data for this test
         vis_values = vis_row[1].values
         storage_values = storage_row[1].values
         loss_values = loss_row[1].values
 
-        # Assign a unique color and marker for each test
+        # Assigning a unique color and marker for each test
         color = test_colors[idx]
         # marker = marker_styles[idx % len(marker_styles)]
 
-        # Plot viscosity data
+        # Plotting viscosity data
         ax.loglog(freq_data_list, vis_values, label=f"Test {idx+1}: Viscosity",
                 color=color, marker=marker_styles[1], linestyle='--')
 
-        # Plot storage modulus
+        # Plotting storage modulus
         ax.loglog(freq_data_list, storage_values, label=f"Test {idx+1}: Storage Modulus",
                 color=color, marker=marker_styles[2], linestyle='-.')
 
-        # Plot loss modulus
+        # Plotting loss modulus
         ax.loglog(freq_data_list, loss_values, label=f"Test {idx+1}: Loss Modulus",
                 color=color, marker=marker_styles[3], linestyle=':')
 
-    # Add legend and formatting
+    # Adding legend and formatting
     ax.legend(title="Legend", bbox_to_anchor=(1.05, 1), loc='upper left', ncol=2)
     plt.tight_layout()
     plt.show()
@@ -107,7 +107,7 @@ def main():
 
     freq_data, storage_data, loss_data, vis_data = readindata(data)
 
-    # Define ranges and sample names
+    # Defining ranges and sample names
     ranges = [(0, 5), (6, 11), (12, 18), (19, 24), (25, 30), (31, 36), (37, 42)]  # Outliers Dataset 70C
     # ranges = [(0, 5), (6, 11), (12, 17), (18, 22), (23, 28), (29, 33), (34, 39)]  # Outliers Dataset 120C
     # ranges = [(0, 5), (6, 11), (12, 17), (18, 23), (24, 30), (31, 36), (37, 43)]  # Outliers Dataset 170C
