@@ -35,7 +35,7 @@ Notes:
 - When running "high_res_rheology_main": The corresponding dataset is titled "High Precision 2055-2060 Series 170C.xlsx".
 - When running "tensile_dataset_main": The default dataset has been set to "Tensile Data 2055-2060 40C.xlsx".
   
-*** If you would like to run files other than the defaults, you will have to comment out the default and uncomment the dataset you would like to run. The variable "original_ranges" will also need to be updated to correspond to the chosen dataset.
+If you would like to run files other than the defaults, you will have to comment out the default and uncomment the dataset you would like to run. The variable "original_ranges" will also need to be updated to correspond to the chosen dataset.
   
 2) Change the file paths to save the graphs to the desktop.
 
