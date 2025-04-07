@@ -7,11 +7,11 @@ The purpose of this project is to assess the rheological and tensile similarity 
 
 VERSION REQUIREMENTS:
 --------------------
-These scripts were written using Python 3.9.13. I have included the requirements.txt for additional information.
+These scripts were written using Python 3.9.13. I have included the requirements.txt for the environment set up with pip.
 
 NAVIGATING FOLDERS:
 -------------------
-In the Masters Code folder, there are subfolders titled "Additional Graphs", "Excel Files", and "Mains". 
+In the "Masters Code" folder, there are subfolders titled "Additional Graphs", "Excel Files", and "Mains". 
 
 Additional Graphs: Contains a few short scripts for additional graphs we wanted to use in our papers.
   
