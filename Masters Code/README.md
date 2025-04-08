@@ -3,7 +3,7 @@ Master's Research Project
 
 PROJECT DESCRIPTION:
 --------------------
-The purpose of this project is to assess the rheological and tensile similarity between various PVDF-CTFE legacy lots with varying synthesis and processing techniques. Dimension reduction (PCA / LDA) was used to reduce datasets containing 100+ dimensions to 2 dimensions to qualitatively assess similarity. Distance calculations were also made to quantitatively assess similarity. Clustering (k-means) was also applied to group similar polymer lots together to further verify similarities and assess outliers. Only the final versions of code are contained within this repo for viewing.
+The purpose of this research was to assess the rheological and tensile similarity between various PVDF-CTFE legacy lots with varying synthesis and processing techniques. Dimension reduction (PCA / LDA) was used to reduce datasets containing 4 or more dimensions to 2 dimensions to qualitatively assess similarity. Distance calculations were also made to quantitatively assess similarity. Clustering (k-means) was applied to group similar polymer lots together to further verify similarities and assess outliers. Only the final versions of code are contained within this repo for viewing.
 
 VERSION REQUIREMENTS:
 --------------------
@@ -18,9 +18,21 @@ Additional Graphs: Contains a few short scripts for additional graphs we wanted 
 Excel Files: Contains all of the final data used for our scientific journal and my thesis. Subfolders are separating the rheological and tensile datasets.
 
 About the Datasets:
+**Rheology - rheology_dataset_main**
 - The rheology datasets were the primary datasets used in our analysis and were the focus of the research journal and thesis. There were three rheology datasets for temperatures of 70°C, 120°C, and 170°C used by "rheology_dataset_main". Each of these datasets had undergone data preprocessing by applying Chavunet's Criteria to identify outliers in the dataset. These outliers were taken completely out before running the data through these scripts. We compared our results to an experimental approach of assessing rheological similarity through the crossover point and zero-shear viscosity. These outliers were not included and handled in this code because we wanted to have identical datasets to the experimental approach for direct comparisons of performance.
-- We investigated the impact of high-frequency data on our results to determine if it was worthwhile to perform larger frequency sweeps. We determined that it was not worthwhile to pursue, however, the code and high-res dataset have been included and are referred to as "high_res_rheology_main" and "High Precision 2055-2060 Series 170C.xlsx".
-- Four temperature tensile datasets were collected for analysis, which were 24°C, 40°C, 50°C, and 70°C, respectively. These datasets had to be adjusted in preprocessing so that they did not contain negative values, each test contained the same number of sampled datapoints/dimensions, and each of the datapoints being compared to each other corresponded to the same strain value, the first dimension/first value in each test was set to zero and following datapoints were shifted accordingly. 
+  - Original Dimenions 70°C rheology dataset = 39 (13 datapoints collected x3 for storage, loss, viscosity)
+  - Original Dimenions 120°C rheology dataset = 57 (19 datapoints collected x3 for storage, loss, viscosity)
+  - Original Dimenions 170°C rheology dataset = 57 (19 datapoints collected x3 for storage, loss, viscosity)
+
+**High-Res Rheology - high_res_rheology_main**
+- We investigated the impact of high-frequency data on our results to determine if it was worthwhile to perform larger frequency sweeps. We determined that it was not worthwhile to pursue, however, the code and high-res dataset has been included and can be ran through the "high_res_rheology_main" using the "High Precision 2055-2060 Series 170C.xlsx" dataset.
+  -  Original Dimenions high-res 170°C rheology dataset = 150 (50 datapoints collected x3 for storage, loss, viscosity)
+
+*In addition to these rheology datasets I have included Excel files within the Rheology folder that were used to create truncation graphs, and Ed's histograms (experimental approach to assessing similarity). To run these Excel files you will need to run the mains located in the Additional Graphs folder*
+
+  **Tensile - tensile_dataset_main**
+- Four temperature tensile datasets were collected for analysis, which were 24°C, 40°C, 50°C, and 70°C, respectively. These datasets had to be adjusted in preprocessing so that they did not contain negative values, each test contained the same number of sampled datapoints/dimensions, and each of the datapoints being compared to each other corresponded to the same strain value, the first dimension/first value in each test was set to zero and following datapoints were shifted accordingly.
+  - Original Dimensions of 24°C, 40°C, 50°C, 70°C tensile dataset is dependent on how many interpolated points are chosen.
 
 Mains: This folder contains the main functions/main scripts.
 
@@ -28,15 +40,10 @@ Functions: This file contains all the various functions that each of the main sc
 
 HOW TO USE:
 ---------------
-1) Download appropriate files: the function file (used by each main), the main you would like to run (rheology_dataset_main, high_res_rheology_main, or tensile_dataset_main), and the dataset/Excel file.
+1) Create a clone of this repo
+2) Make sure that the clone is saved to a file where your virtual environment can assess the clone
+3) Open the functions file and the main that you would like to run
+4) Run the main
+5) Provide inputs to the questions printed in the command line while running
 
-Notes:
-- When running "rheology_dataset_main": The default dataset has been set to "2055-2060 Series 120C Batch 2 Outliers.xlsx".
-- When running "high_res_rheology_main": The corresponding dataset is titled "High Precision 2055-2060 Series 170C.xlsx".
-- When running "tensile_dataset_main": The default dataset has been set to "Tensile Data 2055-2060 40C.xlsx".
-  
-If you would like to run files other than the defaults, you will have to comment out the default and uncomment the dataset you would like to run. The variable "original_ranges" will also need to be updated to correspond to the chosen dataset.
-  
-2) Change the file paths to save the graphs to the desktop.
-
-QUICK TIP: Use cntr+f and type "save plot" to find the instances to change in the functions file.
+**All outputs should autopopulate into the "Outputs" folder that is created when you run each main**
