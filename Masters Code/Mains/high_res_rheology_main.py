@@ -8,18 +8,25 @@ from functions import run_clustering_analysis
 from functions import pearson_correlation
 from functions import plot_2D
 from functions import distance_radii
+from functions import making_output_folders
+from functions import path_to_input_rhe
 
 
 def main():
+
     """Suppressing Warning Signs"""
     warnings.simplefilter(action='ignore', category=FutureWarning)  # This warning is because a variable changes
     warnings.simplefilter(action='ignore', category=RuntimeWarning)  # This warning is for generating 20+ pictures
-    warnings.simplefilter(action='ignore', category=UserWarning)  # This warning occurs due to tight layout for some PCAs
+    warnings.simplefilter(action='ignore', category=UserWarning)  # This warning occurs do to tight layout for some PCAs
 
-    raw_data = "High Precision 2055-2060 Series 170C.xlsx"
+    """Making output folders to store each type of output"""
+    path_to_output = making_output_folders()
+
+    dataset_chosen = "High Precision 2055-2060 Series 170C.xlsx"
 
     print("Loading Dataset")
-    sample_names, concatenated_data, frequency_data, eds_data, num_datapoints = load_embeddings_rheology(raw_data)
+    raw_data = path_to_input_rhe / 'High Precision 2055-2060 Series 170C.xlsx'
+    sample_names, concatenated_data, frequency_data, eds_data, num_datapoints = load_embeddings_rheology(raw_data, dataset_chosen)
 
     print(sample_names)
 
@@ -27,13 +34,16 @@ def main():
     original_ranges = [(0, 6), (7, 10), (11, 17), (18, 24), (25, 31), (32, 38), (39, 45)]
     avg_names = ["30035", "2055", "2056", "2057", "2058", "2059", "2060"]
 
-    """Naming the different datasets"""
+    num_components = int(input('\n\nHow many components do you want to use?\n'))
+
+    """Naming the different dataset outputs"""
     data0 = "High Precision Rheology"
-    data1 = "PCA"
-    data2 = "LDA"
+    method1 = "LDA"
+    method2 = "PCA"
 
     """Graphing storage and loss moduli and viscosity as a function of frequency"""
-    initial_data_graphs_high_res_rheology(concatenated_data, frequency_data, data0, num_datapoints, original_ranges)
+    initial_data_graphs_high_res_rheology(concatenated_data, frequency_data, data0, num_datapoints, original_ranges,
+                                          path_to_output)
 
     """HERE IS WHERE LDA STARTS"""
 
@@ -42,32 +52,34 @@ def main():
     num_components_range_lda = range(1, 5)
 
     print("Running Clustering Analysis on Original Dataset (LDA):")
-    lda_result, cumulative_variance_lda = run_clustering_analysis(concatenated_data, num_components_range_lda,
-                                                                  sample_names, data2)
+    lda_result, cumulative_variance_lda, twoD_cluster_assignments_LDA = run_clustering_analysis(concatenated_data,
+                                                                                            num_components_range_lda,
+                                                                                            sample_names, method1,
+                                                                                            path_to_output)
 
     print("This is the lda_result\n:", lda_result)
     print("These are the variance ratios:\n", cumulative_variance_lda)
 
     """Plotting 2D results for LDA"""
-    plot_2D(avg_names, lda_result, data2, original_ranges)
+    plot_2D(avg_names, lda_result, method1, original_ranges, twoD_cluster_assignments_LDA, cumulative_variance_lda,
+            path_to_output)
 
     dev_data = pd.DataFrame()
 
     """Calculating pearson correlation values between lda results and Ed's calculations"""
     correlations_lda, averaged_values_lda, error_lda = pearson_correlation(lda_result, eds_data, avg_names,
-                                                                           cumulative_variance_lda, dev_data, data2,
-                                                                           original_ranges)
+                                                                           cumulative_variance_lda, dev_data, method1,
+                                                                           original_ranges, path_to_output)
 
-    error_lda.to_excel(r'C:\Users\tnt02\OneDrive\Desktop\Masters Research\Running Data\Last Run\Excel '
-                       r'Files\Error Calculations LDA.xlsx', sheet_name='sheet1', index=False)
+    correlations_lda.to_excel(path_to_output / 'Excel Files' / 'Pearson Correlation Coefficients LDA.xlsx',
+                              sheet_name='sheet1', index=False)
+    error_lda.to_excel(path_to_output / 'Excel Files' / 'Error Calculations LDA.xlsx', sheet_name='sheet1', index=False)
+    averaged_values_lda.to_excel(path_to_output / 'Excel Files' / 'Average Calculations LDA.xlsx', sheet_name='sheet1',
+                                 index=False)
 
-    averaged_values_lda.to_excel(r'C:\Users\tnt02\OneDrive\Desktop\Masters Research\Running Data\Last Run\Excel '
-                                 r'Files\Average Calculations LDA.xlsx', sheet_name='sheet1', index=False)
-
-    """We want to calculate the distances and standard deviations for the 2D plot polymer clusters"""
-    num_components = int(input('\n\nHow many components do you want to use?\n'))
+    """We want to calculate the distances and standard deviations for the polymer cluster at the given num components"""
     lda_result = lda_result.iloc[:, :num_components]
-    distance_radii(avg_names, lda_result, original_ranges, data2)
+    distance_radii(avg_names, lda_result, original_ranges, method1, num_components, path_to_output)
 
     """HERE IS WHERE PCA STARTS"""
 
@@ -79,35 +91,29 @@ def main():
 
     """Need the clustering function to return the pca_result so that distance calculations can be made"""
     print("\nRunning Clustering Analysis on Original Dataset (PCA):")
-    pca_result, cumulative_variance_pca = run_clustering_analysis(concatenated_data, num_components_range_pca,
-                                                                  sample_names, data1)
+    pca_result, cumulative_variance_pca, twoD_cluster_assignments_PCA = run_clustering_analysis(concatenated_data, num_components_range_pca,
+                                                                  sample_names, method2, path_to_output)
 
     print("\nHere is PCA result: \n", pca_result)
     print("\nHere are the ranges passed in to 2D plot:\n", original_ranges)
 
-    plot_2D(avg_names, pca_result, data1, original_ranges)
+    plot_2D(avg_names, pca_result, method2, original_ranges, twoD_cluster_assignments_PCA, cumulative_variance_lda,
+            path_to_output)
 
     """Calculating pearson correlation values between PCA results and Ed's calculations"""
     correlations_pca, averaged_values_pca, error_pca = pearson_correlation(pca_result, eds_data, avg_names,
                                                                            cumulative_variance_pca,
-                                                                           dev_data, data1, original_ranges)
+                                                                           dev_data, method2, original_ranges, path_to_output)
 
-    print("\nCorrelations: ")
-    print(correlations_pca)
-
-    """Saving the DataFrame to an Excel file"""
-    correlations_pca.to_excel(r'C:\Users\tnt02\OneDrive\Desktop\Masters Research\Running Data\Last Run\Excel '
-                              r'Files\Pearson Correlation Coefficients PCA.xlsx', sheet_name='sheet1', index=False)
-
-    error_pca.to_excel(r'C:\Users\tnt02\OneDrive\Desktop\Masters Research\Running Data\Last Run\Excel '
-                       r'Files\Error Calculations PCA.xlsx', sheet_name='sheet1', index=False)
-
-    averaged_values_pca.to_excel(r'C:\Users\tnt02\OneDrive\Desktop\Masters Research\Running Data\Last Run\Excel '
-                                 r'Files\Average Calculations PCA.xlsx', sheet_name='sheet1', index=False)
+    correlations_pca.to_excel(path_to_output / 'Excel Files' / 'Pearson Correlation Coefficients PCA.xlsx',
+                              sheet_name='sheet1', index=False)
+    error_pca.to_excel(path_to_output / 'Excel Files' / 'Error Calculations PCA.xlsx', sheet_name='sheet1', index=False)
+    averaged_values_pca.to_excel(path_to_output / 'Excel Files' / 'Average Calculations PCA.xlsx', sheet_name='sheet1',
+                                 index=False)
 
     """Distances for PCA"""
     pca_result = pca_result.iloc[:, :num_components]
-    distance_radii(avg_names, pca_result, original_ranges, data1)
+    distance_radii(avg_names, pca_result, original_ranges, method2, num_components, path_to_output)
 
 
 if __name__ == "__main__":
