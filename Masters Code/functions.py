@@ -17,9 +17,46 @@ from sklearn.model_selection import ParameterGrid, GridSearchCV
 from sklearn.cluster import KMeans
 from scipy.spatial.distance import euclidean, cityblock, cosine
 from sklearn.decomposition import KernelPCA
+from pathlib import Path
+
+"""This is for input files"""
+path_to_input_rhe = Path(__file__).parent / 'Interview' / 'Masters Code' / 'Excel Files' / 'Rheology'
+path_to_input_ten = Path(__file__).parent / 'Interview' / 'Masters Code' / 'Excel Files' / 'Tensile'
 
 
-def load_embeddings_rheology(raw_data):
+def making_output_folders():
+    path_to_output = Path(__file__).parent / 'Outputs'  # This is for outputs
+    path_to_output.mkdir(exist_ok=True)  # Making output folder
+
+    """Creating subfolders within the output folder"""
+    subfolders = ['Stress Strain Plots', 'Rheology Plots', 'Dim Weights', 'Per Var-Dis', 'Comparing Ed Data',
+                  'Clustering Opt', 'Excel Files']
+    for folder in subfolders:
+        (path_to_output / folder).mkdir(exist_ok=True)  # Making subfolders
+
+        """Making subsubfolders for the different clustering optimization techniques"""
+        if folder == 'Clustering Opt':
+            (path_to_output / folder / 'Elbow Method').mkdir(exist_ok=True)
+            (path_to_output / folder / 'Silhouette Scores').mkdir(exist_ok=True)
+        elif folder == 'Excel Files':
+            (path_to_output / folder / 'PCA').mkdir(exist_ok=True)
+            (path_to_output / folder / 'LDA').mkdir(exist_ok=True)
+        elif folder == 'Stress Strain Plots':
+            (path_to_output / folder / 'Group Polymer Lot').mkdir(exist_ok=True)
+            (path_to_output / folder / 'Ind Polymer Lot').mkdir(exist_ok=True)
+
+
+
+    print("")
+    print("This is the file path for the outputs folder:", path_to_output)
+
+    return path_to_output
+
+
+"""Here are the loading functions that are used by the different mains."""
+
+
+def load_embeddings_rheology(raw_data, dataset_chosen):
     """
         Purpose: This function takes in an Excel file with multiple sheets for rheology testing data - we only took
         viscosity, storage, and loss moduli data from the Excel sheets. This function also standardized the dataset.
@@ -62,7 +99,8 @@ def load_embeddings_rheology(raw_data):
 
         """Here is where I truncated the dataset manually for the truncation analysis - change these values if you need
         different truncations"""
-        # df = df.iloc[0: 13, :]  # 70C Batch 2 only collected 13 datapoints for each polymer
+        if dataset_chosen == '2055-2060 Series 70C Batch 2 Outliers.xlsx':
+            df = df.iloc[0: 13, :]  # 70C Batch 2 only collected 13 datapoints for each polymer
 
         """Placing all the values for frequency, storage modulus (G'), loss modulus (G''), and viscosity in their own
         lists so that they can be added into the DataFrames"""
@@ -191,6 +229,9 @@ def load_embeddings_tensile(raw_data):
     return sample_names, stress_data, strain_data, force_data, num_datapoints, eds_data
 
 
+"""This type of dataset was quickly abandoned therefore no mains were included for this"""
+
+
 def load_embeddings_combined():
     """
     Purpose: This function loads in Excel data for datasets containing rheological and tensile testing data. The tensile
@@ -287,6 +328,9 @@ def load_embeddings_combined():
     # print("")
 
     return sample_names, concatenated_data_df, frequency_data, eds_data
+
+
+"""Additional tensile dataset preprocessing functions."""
 
 
 def preprocessing_tensile_data(force_data, stress_data, strain_data):
@@ -417,6 +461,9 @@ def interpolation(stress_data, strain_data):
         1) PANDAS dataframes: stress_data and strain_data (preprocessed and interpolated)
     """
 
+    """Asking user for input"""
+    num_datapoints = int(input('\n\nHow many datapoints would you like to use for interpolation?'))
+
     """Creating new dataframes to put the interpolated data in"""
     interpolated_stress = []
     interpolated_strain = []
@@ -436,7 +483,7 @@ def interpolation(stress_data, strain_data):
 
         """Defining the range of strain values for interpolation (The 600 value indicated 600 interpolated data points -
         this can be changed to whatever number you want to use.)"""
-        interpolated_strain_values_row = np.linspace(min_strain, max_strain, 600)
+        interpolated_strain_values_row = np.linspace(min_strain, max_strain, num_datapoints)
 
         """Applying linear interpolation"""
         interpolated_stress_values_row = np.interp(interpolated_strain_values_row, strain_row, stress_row)
@@ -457,7 +504,13 @@ def interpolation(stress_data, strain_data):
     return interpolated_strain_df, interpolated_stress_df
 
 
-def initial_data_graphs_rheology(data, frequency_data, dataset_name, num_datapoints):
+"""These functions create graphs to interpret the original data within the various datasets. The rheology datasets plot
+the viscosity, and storage and loss moduli data vs frequency while the tensile datasets plot stress vs strain. These 
+graphs help us to gain insights into the general trends of the dataset, standard deviations between the same material
+tests, obvious outliers, etc."""
+
+
+def initial_data_graphs_rheology(data, frequency_data, num_datapoints, path_to_output):
     """
     Purpose: This function is only used for rheology data to produce graphs of each of the features in relation to
     frequency. (3 subplots)
@@ -473,19 +526,20 @@ def initial_data_graphs_rheology(data, frequency_data, dataset_name, num_datapoi
     """Defining data and labels"""
     data_sets = ["G' [Pa]", "G'' [Pa]", "|n*| [Pa]"]
 
-    """THIS CHANGES DEPENDING ON THE DATASET - I can't remember which rheology dataset this is set up for. This should 
-    probably be defined outside of the function honestly but this is how I did it to begin with - oh well."""
-    legend_labels = ["2055_.1", "2055_.2", "2055_.3", "2055_.4", "2055_.5", "2055_.6", "2055_.7", "2056_.1", "2056_.2",
-                     "2056_.3", "2056_.4", "2056_.5", "2056_.6", "2056_.7", "2057_.1", "2057_.2", "2057_.3", "2057_.5",
-                     "2057_.6", "2057_.7", "2058_.1", "2058_.2", "2058_.3", "2058_.4", "2058_.5", "2058_.6", "2058_.7",
-                     "2059_.1", "2059_.2", "2059_.3", "2059_.4", "2059_.5", "2059_.6", "2059_.7", "2060_.1", "2060_.2",
-                     "2060_.3", "2060_.4", "2060_.5", "2060_.6", "2060_.7", "30035_.1", "30035_.2", "30035_.3",
-                     "30035_.4", "30035_.5", "30035_.6", "30035_.7"]
+    """THIS CHANGES DEPENDING ON THE DATASET - I would definitely change this if in future iterations to be more dynamic
+    and not hard coded. - I have it all commented out because I can't remember which dataset this is for and if not 
+    correct it throws an error."""
+    # legend_labels = ["2055_.1", "2055_.2", "2055_.3", "2055_.4", "2055_.5", "2055_.6", "2055_.7", "2056_.1", "2056_.2",
+    #                 "2056_.3", "2056_.4", "2056_.5", "2056_.6", "2056_.7", "2057_.1", "2057_.2", "2057_.3", "2057_.5",
+    #                 "2057_.6", "2057_.7", "2058_.1", "2058_.2", "2058_.3", "2058_.4", "2058_.5", "2058_.6", "2058_.7",
+    #                 "2059_.1", "2059_.2", "2059_.3", "2059_.4", "2059_.5", "2059_.6", "2059_.7", "2060_.1", "2060_.2",
+    #                 "2060_.3", "2060_.4", "2060_.5", "2060_.6", "2060_.7", "30035_.1", "30035_.2", "30035_.3",
+    #                 "30035_.4", "30035_.5", "30035_.6", "30035_.7"]
 
     freq1 = frequency_data.iloc[0][0:num_datapoints].tolist()
 
     """Creating the figure"""
-    fig, axs = plt.subplots(3, sharex=True, figsize=(10, 6))
+    fig_rheology, axs = plt.subplots(3, sharex=True, figsize=(10, 6))
     """Adjusting the vertical spacing"""
     plt.subplots_adjust(hspace=0.5, right=0.8)
 
@@ -501,26 +555,24 @@ def initial_data_graphs_rheology(data, frequency_data, dataset_name, num_datapoi
         if i == 2:
             ax.set_xlabel('Frequency [Hz]')
 
-        for j in range(47):
+        for j in range(num_datapoints):
             data_values = data.iloc[j][i * num_datapoints:(i + 1) * num_datapoints].tolist()
             """Using different line styles for every 7 plots"""
             line_style = line_styles[j // 7]
             """Assigning a different color for every seventh line"""
             color = f'C{j % 7}'
-            ax.plot(freq1, data_values, label=legend_labels[j], linestyle=line_style, color=color)
+            ax.plot(freq1, data_values, linestyle=line_style, color=color)
 
-    """Commented out one is for single polymer"""
-    # ax.legend(legend_labels, loc="center left", bbox_to_anchor=(1, 3.2), fontsize='small', ncol=2)
-    ax.legend(legend_labels, loc="upper left", bbox_to_anchor=(1, 3.2), fontsize='small', ncol=2)
+            """Commented out because of legend"""
+            # ax.plot(freq1, data_values, label=legend_labels[j], linestyle=line_style, color=color)
 
-    # plt.show()
+    # ax.legend(legend_labels, loc="center left", bbox_to_anchor=(1, 3.2), fontsize='small', ncol=2) # single polymer
+    # ax.legend(legend_labels, loc="upper left", bbox_to_anchor=(1, 3.2), fontsize='small', ncol=2) # multi polymer
 
-    """YOU WILL NEED TO CHANGE THIS!"""
-    save_plot(fig, f"Standardized Data.png", dataset_name,
-              os.path.join(r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run"))
+    fig_rheology.savefig(path_to_output / 'Rheology Plots' / f"Standardized Data.png")
 
 
-def initial_data_graphs_high_res_rheology(data, frequency_data, dataset_name, num_datapoints, ranges):
+def initial_data_graphs_high_res_rheology(data, frequency_data, dataset_name, num_datapoints, ranges, path_to_output):
     """
     Purpose: This function is only used for the high-res rheology data to produce graphs of each of the features in
     relation to frequency. (3 subplots)
@@ -537,8 +589,8 @@ def initial_data_graphs_high_res_rheology(data, frequency_data, dataset_name, nu
     """Defining data and labels"""
     data_sets = ["G' [Pa]", "G'' [Pa]", "|n*| [Pa]"]
 
-    """THIS CHANGES DEPENDING ON THE DATASET - I can't remember which rheology dataset this is set up for. This should 
-    probably be defined outside of the function honestly but this is how I did it to begin with - oh well."""
+    """THIS CHANGES DEPENDING ON THE DATASET - I would definitely change this if in future iterations to be more dynamic
+     and not hard coded. - If not correct it throws an error."""
     legend_labels = ["30035_.1", "30035_.2", "30035_.3", "30035_.4", "30035_.5", "30035_.6", "30035_.7",
                      "2055_.4", "2055_.5", "2055_.6", "2055_.7",
                      "2056_.1", "2056_.2", "2056_.3", "2056_.4", "2056_.5", "2056_.6", "2056_.7",
@@ -586,18 +638,13 @@ def initial_data_graphs_high_res_rheology(data, frequency_data, dataset_name, nu
             ax.plot(freq1, data_values, label=legend_labels[j], color=polymer_colors[j], linewidth=1,
                     marker=test_styles[j], markersize=5)
 
-    """Commented out one is for single polymer"""
-    # ax.legend(legend_labels, loc="lower left", bbox_to_anchor=(1, 3.2), fontsize='small', ncol=2)
-    ax.legend(legend_labels, loc="upper left", bbox_to_anchor=(1, 3.2), fontsize='small', ncol=2)
+    # ax.legend(legend_labels, loc="lower left", bbox_to_anchor=(1, 3.2), fontsize='small', ncol=2) # single polymer
+    ax.legend(legend_labels, loc="upper left", bbox_to_anchor=(1, 3.2), fontsize='small', ncol=2) # mult polymer
 
-    # plt.show()
-
-    """YOU WILL NEED TO CHANGE THIS!"""
-    save_plot(fig, f"Standardized Data.png", dataset_name,
-              os.path.join(r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run"))
+    fig.savefig(path_to_output / 'Rheology Plots' / f"Standardized_High_Prec_Data.png")
 
 
-def stress_strain_plots(sample_name, stress_data, strain_data, dataset_name, ranges):
+def stress_strain_plots(sample_name, stress_data, strain_data, dataset_name, ranges, path_to_output):
     """
     Purpose: This function is only used for the tensile data to produce stress vs strain graphs. It produces
     stress/strain plots for the individual polymer lot tests and a combined stress_strain plot for all tests belonging
@@ -638,10 +685,7 @@ def stress_strain_plots(sample_name, stress_data, strain_data, dataset_name, ran
         ax_stress_strain.set_xlabel('Strain')
         plt.grid(color='k', linestyle='--', linewidth='0.25')
 
-        """YOU WILL NEED TO CHANGE THIS!"""
-        save_plot(fig_stress_strain, f"Stress_Strain_{sample_name[index]}_{sample_count}.png", dataset_name,
-                  os.path.join(
-                      r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Stress Strain"))
+        fig_stress_strain.savefig(path_to_output / 'Stress Strain Plots' / 'Ind Polymer Lot' / f"Stress_Strain_{sample_name[index]}_{sample_count}.png")
 
         """Collecting data for combined plot"""
         all_stress_data.append(stress_data.iloc[index, :])
@@ -668,8 +712,6 @@ def stress_strain_plots(sample_name, stress_data, strain_data, dataset_name, ran
         sample_groups = sorted(set(name.split('_')[0] for name in all_sample_names))
         test_numbers = sorted(set(name.split('_')[1] for name in all_sample_names))
 
-        print(sample_groups)
-
         """Assigning colors and markers to each unique sample group"""
         for i, group in enumerate(sample_groups):
             color_map[group] = custom_colors[i % len(sample_groups)]
@@ -679,7 +721,7 @@ def stress_strain_plots(sample_name, stress_data, strain_data, dataset_name, ran
 
         """Creating separate plots for each sample group"""
         for group in sample_groups:
-            fig, ax = plt.subplots(figsize=(8, 6))
+            fig_lot_grouped, ax = plt.subplots(figsize=(8, 6))
 
             ax.set_title(f'Stress-Strain Curves for {group}')
             ax.set_xlabel('Strain')
@@ -694,10 +736,8 @@ def stress_strain_plots(sample_name, stress_data, strain_data, dataset_name, ran
 
             ax.legend(loc="upper right", fontsize='small')
 
-            """YOU WILL NEED TO CHANGE THIS!"""
-            save_plot(fig, f"Combined Stress Strain Plots {group}.png", dataset_name,
-                      os.path.join(
-                          r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Stress Strain"))
+            fig_lot_grouped.savefig(
+                path_to_output / 'Stress Strain Plots' / 'Group Polymer Lot' / f"Combined Stress Strain Plots {group}.png")
 
         """Creating the combined plot"""
         for strain, stress, name in zip(all_strain_data, all_stress_data, all_sample_names):
@@ -712,18 +752,19 @@ def stress_strain_plots(sample_name, stress_data, strain_data, dataset_name, ran
         ax_combined.set_xlabel('Strain')
         plt.grid(color='k', linestyle='--', linewidth=0.25)
 
-        # ax_combined.legend(loc="lower center", bbox_to_anchor=(0.5, -0.7), fontsize='small', ncol=5)
-        ax_combined.legend(loc="center left", bbox_to_anchor=(1, 0.5), fontsize='small', ncol=3)
+        ax_combined.legend(loc="lower center", bbox_to_anchor=(0.5, -0.7), fontsize='small', ncol=5)
+        # ax_combined.legend(loc="center left", bbox_to_anchor=(1, 0.5), fontsize='small', ncol=3)
 
-        """YOU WILL NEED TO CHANGE THIS!"""
-        save_plot(fig_combined, f"Interpolated Stress Strain Plots.png", dataset_name,
-                  os.path.join(
-                      r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Stress Strain"))
+        fig_combined.savefig(
+            path_to_output / 'Stress Strain Plots' / "Interpolated Stress Strain Plots.png")
 
         plt.close()
 
 
-def pca_embeddings(data, dataset_name, num_components):
+"""Dimension Reduction Functions"""
+
+
+def pca_embeddings(data, dataset_name, path_to_output, num_components):
     """
     Purpose: This function applies principal component analysis (PCA) to the dataset.
 
@@ -751,12 +792,16 @@ def pca_embeddings(data, dataset_name, num_components):
 
     num_features = data.shape[1]
 
+    results = pd.DataFrame(result)
+    results.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / 'Eigenvectors_PCA_embeddings.xlsx',
+                     sheet_name='sheet1', index=False)
+
     """Checking if there's only one component (PC) because then we do not use subplots. If there is more than one 
     component then subplots have to be made so that we can see how each feature in the component (PC) was weighted"""
     if num_components == 1:
 
         """Creating the histogram"""
-        fig, ax = plt.subplots()
+        fig_weights, ax = plt.subplots()
         ax.bar(range(num_features), pca.components_[0], tick_label=data.columns)
         ax.set_title("PCA 1 Component Analysis")
         ax.set_xlabel("Feature")
@@ -766,7 +811,7 @@ def pca_embeddings(data, dataset_name, num_components):
     else:
 
         """Creating subplots for PCA component analysis"""
-        fig, axes = plt.subplots(num_components, 1, sharex=True)
+        fig_weights, axes = plt.subplots(num_components, 1, sharex=True)
 
         """Creating the histograms"""
         for i, ax in enumerate(axes):
@@ -780,10 +825,7 @@ def pca_embeddings(data, dataset_name, num_components):
 
     """Only saving and the first 5 PCs since becomes unhelpful with more"""
     if num_components <= 5:
-        """YOU WILL NEED TO CHANGE THIS!"""
-        save_plot(fig, f"Weights_{num_components}.png", dataset_name,
-                  os.path.join(r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\PCA "
-                               r"Analysis"))
+        fig_weights.savefig(path_to_output / 'Dim Weights' / f"Weights_{num_components}_{dataset_name}.png")
 
     """Calculating variance ratios"""
     variance = pca.explained_variance_ratio_
@@ -801,15 +843,13 @@ def pca_embeddings(data, dataset_name, num_components):
 
     """Only saving and the first 5 PCs since becomes unhelpful with more"""
     if num_components <= 5:
-        """YOU WILL NEED TO CHANGE THIS!"""
-        save_plot(fig_percent_variance, f"Percent_Variance_{num_components}.png", dataset_name,
-                  os.path.join(
-                      r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Percent Variance"))
+        fig_percent_variance.savefig(
+            path_to_output / 'Per Var-Dis' / f"Percent_Variance_{num_components}_{dataset_name}.png")
 
     return result, cumulative_variance
 
 
-def lda_embeddings(data, sample_names, dataset_name, num_components):
+def lda_embeddings(data, sample_names, dataset_name, path_to_output, num_components):
     """
     Purpose: This function applies linear discriminate analysis (LDA) to the dataset. This dimension reduction technique
     differs from PCA because it utilizes polymer lot names (classification). These labels or classes allow the algorithm
@@ -858,8 +898,8 @@ def lda_embeddings(data, sample_names, dataset_name, num_components):
     """Print Check"""
     # print("Here is the mean for lda embeddings:", lda_mean_embeddings)
 
-    lda_mean_embeddings_df.to_excel(r'C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Excel '
-                                    r'Files\Mean Vectors LDA embeddings.xlsx', sheet_name='sheet1', index=False)
+    lda_mean_embeddings_df.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / 'Mean_Vectors_LDA_embeddings.xlsx',
+                                    sheet_name='sheet1', index=False)
 
     eigenvectors = lda.scalings_
 
@@ -876,9 +916,8 @@ def lda_embeddings(data, sample_names, dataset_name, num_components):
     # print(eigenvectors.shape)
 
     eigenvectors_df = pd.DataFrame(eigenvectors)
-
-    eigenvectors_df.to_excel(r'C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Excel '
-                             r'Files\Eigenvectors LDA embeddings.xlsx', sheet_name='sheet1', index=False)
+    eigenvectors_df.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / 'Eigenvectors_LDA_embeddings.xlsx',
+                             sheet_name='sheet1', index=False)
 
     """Print Check"""
     # data_2 = np.array(data)
@@ -890,7 +929,7 @@ def lda_embeddings(data, sample_names, dataset_name, num_components):
         component then subplots have to be made so that we can see how each feature in the component (PC) was weighted"""
     if num_components == 1:
         """Creating the histogram"""
-        fig, ax = plt.subplots()
+        fig_weights, ax = plt.subplots()
         ax.bar(range(num_features), eigenvectors[0], tick_label=data.columns)
         ax.set_title("LDA 1 Component Analysis")
         ax.set_xlabel("Feature")
@@ -899,7 +938,7 @@ def lda_embeddings(data, sample_names, dataset_name, num_components):
 
     else:
         """Creating subplots for PCA component analysis"""
-        fig, axes = plt.subplots(num_components, 1, sharex=True)
+        fig_weights, axes = plt.subplots(num_components, 1, sharex=True)
 
         """Creating the histograms"""
         for i, ax in enumerate(axes):
@@ -913,9 +952,7 @@ def lda_embeddings(data, sample_names, dataset_name, num_components):
 
     """Only saving and the first 5 LDAs since it becomes unhelpful with more"""
     if num_components <= 5:
-        """YOU WILL NEED TO CHANGE THIS!"""
-        save_plot(fig, f"Weights_{num_components}.png", dataset_name,
-                  os.path.join(r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\PCA Analysis"))
+        fig_weights.savefig(path_to_output / 'Dim Weights' / f"Weights_{num_components}_{dataset_name}.png")
 
     """Calculating variance ratios"""
     variance = lda.explained_variance_ratio_
@@ -937,15 +974,16 @@ def lda_embeddings(data, sample_names, dataset_name, num_components):
 
     """Only saving and the first 5 LDAs since it becomes unhelpful with more"""
     if num_components <= 5:
-        """YOU WILL NEED TO CHANGE THIS!"""
-        save_plot(fig_percent_variance, f"Percent_Variance_{num_components}.png", dataset_name,
-                  os.path.join(r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Percent "
-                               r"Variance"))
+        fig_percent_variance.savefig(
+            path_to_output / 'Per Var-Dis' / f"Percent_Variance_{num_components}_{dataset_name}.png")
 
     return result, cumulative_variance
 
 
-def kmean_hyper_param_tuning(data, num_components, dataset_name):
+"""Clustering Functions"""
+
+
+def kmean_hyper_param_tuning(data, num_components, dataset_name, path_to_output):
     """
     Purpose: Silhouette Scores and Elbow Method are applied to the dimension reduction results to determine the optimum
      number of clusters to use for the dataset. Histograms and plots are created for visual aid.
@@ -1016,9 +1054,8 @@ def kmean_hyper_param_tuning(data, num_components, dataset_name):
         ax_silhouette.set_xlabel('Number of Clusters')
         ax_silhouette.set_ylabel('Silhouette Score')
 
-        """YOU WILL NEED TO CHANGE THIS!"""
-        save_plot(fig_silhouette, f"Silhouette_{num_components}.png", dataset_name, os.path.join(
-            r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Silhouette Scores"))
+        fig_silhouette.savefig(
+            path_to_output / 'Clustering Opt' / 'Silhouette Scores' / f"{num_components}_numcomp_{dataset_name}.png")
 
         """Plotting the elbow graph"""
         fig_elbow, ax_elbow = plt.subplots()
@@ -1028,9 +1065,8 @@ def kmean_hyper_param_tuning(data, num_components, dataset_name):
         ax_elbow.set_ylabel('Inertia')
         ax_elbow.set_xticks(parameters)
 
-        """YOU WILL NEED TO CHANGE THIS!"""
-        save_plot(fig_elbow, f"Elbow_{num_components}.png", dataset_name, os.path.join(
-            r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Elbow Method"))
+        fig_elbow.savefig(
+            path_to_output / 'Clustering Opt' / 'Elbow Method' / f"{num_components}_numcomp_{dataset_name}.png")
 
         plt.close()
 
@@ -1042,7 +1078,7 @@ def kmean_hyper_param_tuning(data, num_components, dataset_name):
     return best_grid['n_clusters']
 
 
-def run_clustering_analysis(data, num_components_range, sample_names, dataset_name):
+def run_clustering_analysis(data, num_components_range, sample_names, dataset_name, path_to_output):
     """
     Purpose: This function performs the clustering analysis for the dataset by applying the selected dimension reduction
     technique and kmeans clustering. Multiple tables and plots are produced by this function.
@@ -1081,43 +1117,42 @@ def run_clustering_analysis(data, num_components_range, sample_names, dataset_na
 
     """This loops through all of the various PCA tests for the original dataset"""
     """YOU WILL NEED TO CHANGE THIS!"""
-    with pd.ExcelWriter(
-            f'C:\\Users\\tnt02\\OneDrive\\Documents\\Masters Research\\Running Data\\Last Run\\Excel '
-            f'Files\\{dataset_name}_Cluster_Assignments.xlsx', engine='xlsxwriter') as writer:
+    with pd.ExcelWriter(path_to_output / 'Excel Files' / f'{dataset_name}' / f'{dataset_name}_Cluster_Assignments.xlsx',
+                        engine='xlsxwriter') as writer:
 
         for num_components in num_components_range:
 
             if dataset_name == "LDA":
-                result, cumulative_variance = lda_embeddings(data, sample_names, dataset_name,
+                result, cumulative_variance = lda_embeddings(data, sample_names, dataset_name, path_to_output,
                                                              num_components=num_components)
             elif dataset_name == "PCA":
-                result, cumulative_variance = pca_embeddings(data, dataset_name, num_components=num_components)
+                result, cumulative_variance = pca_embeddings(data, dataset_name, path_to_output,
+                                                             num_components=num_components)
 
             elif dataset_name == "ISO":
-                result, cumulative_variance = isomap_embeddings(data, num_components=num_components)
+                result, cumulative_variance = isomap_embeddings(data, path_to_output, num_components=num_components)
 
             elif dataset_name == "LLE":
-                result, cumulative_variance = lle_embeddings(data, num_components=num_components)
+                result, cumulative_variance = lle_embeddings(data, path_to_output, num_components=num_components)
 
             elif dataset_name == "TSNE":
-                result, cumulative_variance = tsne_embeddings(data, num_components=num_components)
+                result, cumulative_variance = tsne_embeddings(data, path_to_output, num_components=num_components)
 
             elif dataset_name == "KPCA":
-                result, cumulative_variance = kpca_embeddings(data, num_components=num_components, kernel='rbf',
-                                                              gamma=None)
+                result, cumulative_variance = kpca_embeddings(data, path_to_output, num_components=num_components,
+                                                              kernel='rbf', gamma=None)
 
             """Checking for variance - we only want over 90% variance since the other PCA components do not provide
             a good model to base results off of"""
             # if cumulative_variance[-1] * 100 < 90:
             #   continue
 
-            optimum_num_clusters = kmean_hyper_param_tuning(result, num_components, dataset_name)
+            optimum_num_clusters = kmean_hyper_param_tuning(result, num_components, dataset_name, path_to_output)
             # print("Optimum num of clusters based on silhouette scores =", optimum_num_clusters)
 
             """Fitting KMeans"""
-            # kmeans = KMeans(n_clusters=optimum_num_clusters, random_state=random_seed)  # CHANGE NUM OF CLUSTERS
-            # USED HERE
-            kmeans = KMeans(n_clusters=optimum_num_clusters)
+            # kmeans = KMeans(n_clusters=optimum_num_clusters, random_state=random_seed)  # for random seeding
+            kmeans = KMeans(n_clusters=optimum_num_clusters)  # can hard code the number of clusters you want to use
             kmeans.fit(result)
 
             if num_components == 2:
@@ -1149,30 +1184,34 @@ def run_clustering_analysis(data, num_components_range, sample_names, dataset_na
             sheet_name = f'Dim_{num_components}_Cluster_Assignments'
             individual_cluster_data_sorted.to_excel(writer, sheet_name=sheet_name, index=False)
 
-    """Creating Table to determine the best number of components to use"""
+    """Creating table to determine the best number of components to use"""
     table_data = {
         'Components': pca_components_list,
         'Optimized Clusters': optimized_clusters,
         'Variance Explained (%)': variance
     }
 
-    """Putting the PCA result into a dataframe to export the results to an Excel file"""
-    results = pd.DataFrame(result)
+    table_data_df = pd.DataFrame(table_data)
 
-    results.to_excel(r'C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Excel '
-                     r'Files\Results.xlsx', sheet_name='sheet1', index=False)
+    """Putting the dim red result into a dataframe to export the results"""
+    results = pd.DataFrame(result)
 
     """Sorting the cluster data by cluster assignment"""
     name_cluster_data['Cluster Assignments'] = kmeans.labels_
 
-    """Saving the clustering results in tables and producing a heatmap for visual aid"""
-    """YOU WILL NEED TO CHANGE THIS!"""
-    save_tables(table_data, name_cluster_data, dataset_name,
-                os.path.join(r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Excel Files"))
+    """Saving the clustering results in to excel files"""
+    name_cluster_data.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / f'Cluster_Assignments_{dataset_name}.xlsx')
+    table_data_df.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / f'Opt_Components_Table_{dataset_name}.xlsx')
 
+    """Commented out because no longer using for analysis - would probably need to be updated to run properly"""
     # heatmap(cluster_data, sample_names, pca_components_list)
 
     return results, cumulative_variance, twoD_cluster_assignments
+
+
+"""Analysis functions that do most of the computation and make the results of the ML techniques easier to 
+visualize/digest. Essentially these functions create the main outputs that were utilized  in the analysis for the 
+research journal and the thesis paper."""
 
 
 def calculate_avg(data, ranges, avg_names):
@@ -1260,7 +1299,8 @@ def calculate_distances(data, datapoint, distance_metric='euclidean'):
     return pd.DataFrame(distances)
 
 
-def pearson_correlation(result, eds_data, avg_names, cumulative_variance, dev_data, dataset_name, original_ranges):
+def pearson_correlation(result, eds_data, avg_names, cumulative_variance, dev_data, dataset_name, original_ranges,
+                        path_to_output):
     """
     Purpose: This function calculates the correlation between the various PCA results and Ed's calculations (viscosity,
     crossover, frequency). We used it to determine the accuracy between eds calculations and the ML technique results.
@@ -1280,7 +1320,7 @@ def pearson_correlation(result, eds_data, avg_names, cumulative_variance, dev_da
     all_average_results = pd.DataFrame()
     all_error_results = pd.DataFrame()
 
-    """Creating new a new set of ranges that can be updated as to keep the original ranges intact"""
+    """Creating a new set of ranges that can be updated as to keep the original ranges intact"""
     modified_ranges = original_ranges.copy()
 
     for col_result in result.columns:
@@ -1300,12 +1340,14 @@ def pearson_correlation(result, eds_data, avg_names, cumulative_variance, dev_da
         averaged_values, error = averaged_histogram(result, current_column_result, col_result, original_ranges,
                                                     avg_names,
                                                     current_variance,
-                                                    dev_data, dataset_name)
+                                                    dev_data, dataset_name, path_to_output)
 
         all_average_results = pd.concat([all_average_results, averaged_values], ignore_index=True)
         all_error_results = pd.concat([all_error_results, error], ignore_index=True)
 
-        """This loop is to loop through Ed's data to do the Pearson Correlation"""
+        """This loop is to loop through Ed's data to do the Pearson Correlation - checks the linear relationship 
+        between our results - should be between -1 and 1 where -1 = negative linear, 0 = no correlation, and 
+        1 = positive linear"""
         for col_eds in eds_data.columns:
 
             """Looping through eds_data column to take out the NaN values and the corresponding value in the result 
@@ -1353,25 +1395,19 @@ def pearson_correlation(result, eds_data, avg_names, cumulative_variance, dev_da
 
                 """Creating a scatter plot with the PCA column values as x values and the eds data column values as the y
                 """
-                plt.figure()
-                plt.scatter(current_column, current_column_eds)
-                plt.title(f'Scatter Plot: {dataset_name}_{result.columns.get_loc(col_result) + 1} vs {col_eds}')
-                plt.xlabel(f'{dataset_name}_{result.columns.get_loc(col_result) + 1}')
-                plt.ylabel(col_eds)
-                plt.text(0.6, 0.9, f'Correlation: {correlation: .2f}', transform=plt.gca().transAxes, fontsize=10,
-                         color='blue')
+                fig_pear_cor, ax = plt.subplots()
+                ax.scatter(current_column, current_column_eds)
+                ax.set_title(f'Scatter Plot: {dataset_name}_{result.columns.get_loc(col_result) + 1} vs {col_eds}')
+                ax.set_xlabel(f'{dataset_name}_{result.columns.get_loc(col_result) + 1}')
+                ax.set_ylabel(col_eds)
+                ax.text(0.6, 0.9, f'Correlation: {correlation: .2f}', transform=plt.gca().transAxes, fontsize=10,
+                        color='blue')
 
                 """Making sure that there are no invalid characters in the filename"""
                 scatter_filename = f'Scatter_{dataset_name}_{result.columns.get_loc(col_result) + 1}_vs_{col_eds}'
                 sanitized_filename_scatter = sanitize_filename(scatter_filename)
 
-                """YOU WILL NEED TO CHANGE THIS!"""
-                save_plot(plt, sanitized_filename_scatter, dataset_name="Original", folder_path=r"C:\Users\tnt02"
-                                                                                                r"\OneDrive"
-                                                                                                r"\Documents\Masters "
-                                                                                                r"Research\Running "
-                                                                                                r"Data\Last "
-                                                                                                r"Run\Correlations")
+                fig_pear_cor.savefig(path_to_output / 'Comparing Ed Data' / sanitized_filename_scatter)
 
                 plt.close()
 
@@ -1379,7 +1415,7 @@ def pearson_correlation(result, eds_data, avg_names, cumulative_variance, dev_da
 
 
 def averaged_histogram(result, current_column_result, col_result, input_range, avg_names, current_variance, dev_data,
-                       dataset_name):
+                       dataset_name, path_to_output):
     """
     Purpose: Average the data points (PCA components) from the correlation graphs calculate the std and then plots them
     in a histogram with the std. x-axis is polymer name and y-axis is averaged pca value. (Used in the
@@ -1459,7 +1495,7 @@ def averaged_histogram(result, current_column_result, col_result, input_range, a
     # print(error)
 
     """Creating the histogram"""
-    fig, ax = plt.subplots(figsize=(3.75, 3.75))
+    fig_histogram_comp_ed, ax = plt.subplots(figsize=(3.75, 3.75))
     ax.bar(range(len(avg_names)), averaged_points.iloc[0],
            yerr=error.iloc[0], capsize=5, color='paleturquoise')
     # ax.set_title(f"Histogram: {dataset_name}{result.columns.get_loc(col_result) + 1}", fontsize=16)
@@ -1475,19 +1511,14 @@ def averaged_histogram(result, current_column_result, col_result, input_range, a
     histogram_filename = f'Histogram_{dataset_name}{result.columns.get_loc(col_result) + 1}'
     sanitized_filename_histogram = sanitize_filename(histogram_filename)
 
-    """YOU WILL NEED TO CHANGE THIS!"""
-    save_plot(fig, sanitized_filename_histogram, dataset_name="Original", folder_path=r"C:\Users\tnt02"
-                                                                                      r"\OneDrive"
-                                                                                      r"\Documents\Masters "
-                                                                                      r"Research\Running "
-                                                                                      r"Data\Last "
-                                                                                      r"Run\Correlations")
+    fig_histogram_comp_ed.savefig(path_to_output / 'Comparing Ed Data' / sanitized_filename_histogram)
+
     plt.close()
 
     return averaged_points, error
 
 
-def distance_radii(polymer_lots, result, ranges, dataset_name):
+def distance_radii(polymer_lots, result, ranges, dataset_name, num_components, path_to_output):
     """
     Purpose: This function calculates the distance and the radii (standard deviation) for each polymer lot to a lot of
     interest. (This is where similarity is quantified) This function does not return anything but produces a table with
@@ -1527,7 +1558,6 @@ def distance_radii(polymer_lots, result, ranges, dataset_name):
         cluster_radii.append(radii)
 
     cluster_radii_pd = pd.DataFrame(cluster_radii)
-
     polymer_lots_df = pd.DataFrame(polymer_lots)
 
     """Making a table that has the polymer lot names, distances, and radii"""
@@ -1560,15 +1590,15 @@ def distance_radii(polymer_lots, result, ranges, dataset_name):
     # print(result)
 
     """Saving the DataFrame to an Excel file"""
-    result.to_excel(r'C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run\Excel '
-                    f'Files\Distance_Radii_Table_{dataset_name}.xlsx', sheet_name='sheet1', index=False)
+    result.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / f'Distance_Radii_Table_{dataset_name}.xlsx', sheet_name='sheet1',
+                    index=False)
 
     """Print Check"""
     # print(result['Polymer'])
     # print(result['Distance from 30035'])
     # print(result['Radii'])
 
-    fig, ax = plt.subplots(figsize=(3.75, 3.75))
+    fig_avg_distance_histo, ax = plt.subplots(figsize=(3.75, 3.75))
     ax.bar(result['Polymer'], result['Distance from 30035'],
            yerr=result['Radii'], capsize=5, color='paleturquoise')
     # ax.set_title(f"Histogram: {dataset_name}{result.columns.get_loc(col_result) + 1}", fontsize=16)
@@ -1581,19 +1611,13 @@ def distance_radii(polymer_lots, result, ranges, dataset_name):
     plt.tight_layout()
     # plt.show()
 
-    histogram_filename = f'Histogram_{dataset_name} Distance Histogram'
+    histogram_filename = f'Distance_Histogram_{num_components}_Comp_{dataset_name}'
     sanitized_filename_histogram = sanitize_filename(histogram_filename)
 
-    """YOU WILL NEED TO CHANGE THIS!"""
-    save_plot(fig, sanitized_filename_histogram, dataset_name="Original", folder_path=r"C:\Users\tnt02"
-                                                                                      r"\OneDrive"
-                                                                                      r"\Documents\Masters "
-                                                                                      r"Research\Running "
-                                                                                      r"Data\Last "
-                                                                                      r"Run\Correlations")
+    fig_avg_distance_histo.savefig(path_to_output / 'Comparing Ed Data' / sanitized_filename_histogram)
 
 
-def plot_2D(sample_names, result, dataset_name, ranges, cluster_assignments, variance):
+def plot_2D(sample_names, result, dataset_name, ranges, cluster_assignments, variance, path_to_output):
     """
     Purpose: This function creates 2D scatter plots for the PCA/LDA results and saves them to the computer.
 
@@ -1622,12 +1646,12 @@ def plot_2D(sample_names, result, dataset_name, ranges, cluster_assignments, var
 
     """Checking to see which dataset we are working with"""
     if dataset_name == "PCA":
-        plt.figure(figsize=(5.5, 5.5))
+        fig_2D_scatter, ax = plt.subplots(figsize=(5.5, 5.5))
         for index, (start, end) in enumerate(ranges):
             index_class = range(start, end + 1)
-            plt.scatter(com_1.iloc[index_class], com_2.iloc[index_class], color=colors[index], marker=markers[index],
-                        s=50,
-                        label=f'Class: {sample_names[index]}')
+            ax.scatter(com_1.iloc[index_class], com_2.iloc[index_class], color=colors[index], marker=markers[index],
+                       s=50,
+                       label=f'Class: {sample_names[index]}')
 
         if cluster_assignments is not None:
             cluster_assignments = np.array(cluster_assignments).flatten()  # Flattening the array if it's nested
@@ -1640,41 +1664,39 @@ def plot_2D(sample_names, result, dataset_name, ranges, cluster_assignments, var
                         f"Not enough points to construct a convex hull for cluster {cluster}. Drawing as points or "
                         f"lines.")
                     if len(points) == 1:
-                        plt.scatter(points[:, 0], points[:, 1], color=cluster_colors[cluster % len(cluster_colors)],
-                                    label=f'Cluster {cluster}')
+                        ax.scatter(points[:, 0], points[:, 1], color=cluster_colors[cluster % len(cluster_colors)],
+                                   label=f'Cluster {cluster}')
                     elif len(points) == 2:
-                        plt.plot(points[:, 0], points[:, 1], 'o-', color=cluster_colors[cluster % len(cluster_colors)],
-                                 label=f'Cluster {cluster}')
+                        ax.plot(points[:, 0], points[:, 1], 'o-', color=cluster_colors[cluster % len(cluster_colors)],
+                                label=f'Cluster {cluster}')
                 else:
                     hull = ConvexHull(points)
                     for simplex in hull.simplices:
-                        plt.plot(points[simplex, 0], points[simplex, 1],
-                                 color=cluster_colors[cluster % len(cluster_colors)])
+                        ax.plot(points[simplex, 0], points[simplex, 1],
+                                color=cluster_colors[cluster % len(cluster_colors)])
 
-                # plt.fill(points[hull.vertices, 0], points[hull.vertices, 1],
+                # ax.fill(points[hull.vertices, 0], points[hull.vertices, 1],
                 #       color=cluster_colors[cluster % len(cluster_colors)], alpha=0.1)
 
-        # plt.legend(loc="upper left", bbox_to_anchor=(1, 0.5), shadow=False, scatterpoints=1)
-        # plt.title(f"2D {dataset_name} Results")
-        plt.xlabel(f"{dataset_name}1 (Explained Variance: {captured_variance_1:.2f}%)", fontsize=12)
-        plt.ylabel(f"{dataset_name}2 (Explained Variance: {captured_variance_2:.2f}%)", fontsize=12)
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
+        ax.legend(loc="best", shadow=False, scatterpoints=1)
+        ax.set_title(f"2D {dataset_name} Results")
+        ax.set_xlabel(f"{dataset_name}1 (Explained Variance: {captured_variance_1:.2f}%)", fontsize=12)
+        ax.set_ylabel(f"{dataset_name}2 (Explained Variance: {captured_variance_2:.2f}%)", fontsize=12)
 
         """Changing the scales for the x- and y-axis so that all generated plots are on the same scale for comparison"""
-        # plt.xlim(-15, 20)
-        # plt.ylim(-4, 10)
+        # ax.set_xlim(-15, 20)
+        # ax.set_ylim(-4, 10)
 
-        # plt.xlim(-100, 100)
-        # plt.ylim(-60, 60)
+        # ax.set_xlim(-100, 100)
+        # ax.set_ylim(-60, 60)
 
     else:
-        plt.figure(figsize=(5.5, 5.5))
+        fig_2D_scatter, ax = plt.subplots(figsize=(5.5, 5.5))
         for index, (start, end) in enumerate(ranges):
             index_class = range(start, end + 1)
-            plt.scatter(com_1.iloc[index_class], com_2.iloc[index_class], color=colors[index], marker=markers[index],
-                        s=50,
-                        label=f'Class: {sample_names[index]}')
+            ax.scatter(com_1.iloc[index_class], com_2.iloc[index_class], color=colors[index], marker=markers[index],
+                       s=50,
+                       label=f'Class: {sample_names[index]}')
 
         if cluster_assignments is not None:
             cluster_assignments = np.array(cluster_assignments).flatten()  # Flattening the array if it's nested
@@ -1686,38 +1708,35 @@ def plot_2D(sample_names, result, dataset_name, ranges, cluster_assignments, var
                     print(
                         f"Not enough points to construct a convex hull for cluster {cluster}. Drawing as points or lines.")
                     if len(points) == 1:
-                        plt.scatter(points[:, 0], points[:, 1], color=cluster_colors[cluster % len(cluster_colors)],
-                                    label=f'Cluster {cluster}')
+                        ax.scatter(points[:, 0], points[:, 1], color=cluster_colors[cluster % len(cluster_colors)],
+                                   label=f'Cluster {cluster}')
                     elif len(points) == 2:
-                        plt.plot(points[:, 0], points[:, 1], 'o-', color=cluster_colors[cluster % len(cluster_colors)],
-                                 label=f'Cluster {cluster}')
+                        ax.plot(points[:, 0], points[:, 1], 'o-', color=cluster_colors[cluster % len(cluster_colors)],
+                                label=f'Cluster {cluster}')
                 else:
                     hull = ConvexHull(points)
                     for simplex in hull.simplices:
-                        plt.plot(points[simplex, 0], points[simplex, 1],
-                                 color=cluster_colors[cluster % len(cluster_colors)])
-                # plt.fill(points[hull.vertices, 0], points[hull.vertices, 1],
+                        ax.plot(points[simplex, 0], points[simplex, 1],
+                                color=cluster_colors[cluster % len(cluster_colors)])
+                # ax.fill(points[hull.vertices, 0], points[hull.vertices, 1],
                 #       color=cluster_colors[cluster % len(cluster_colors)], alpha=0.1)
 
-        # plt.legend(loc="upper left", bbox_to_anchor=(1, 0.5), shadow=False, scatterpoints=1)
-        # plt.title(f"2D {dataset_name} Results")
-        plt.xlabel(f"{dataset_name}1 (Explained Discriminability: {captured_variance_1:.2f}%)", fontsize=12)
-        plt.ylabel(f"{dataset_name}2 (Explained Discriminability: {captured_variance_2:.2f}%)", fontsize=12)
-        plt.xticks(fontsize=12)
-        plt.yticks(fontsize=12)
+        ax.legend(loc="best", shadow=False, scatterpoints=1)
+        ax.set_title(f"2D {dataset_name} Results")
+        ax.set_xlabel(f"{dataset_name}1 (Explained Discriminability: {captured_variance_1:.2f}%)", fontsize=12)
+        ax.set_ylabel(f"{dataset_name}2 (Explained Discriminability: {captured_variance_2:.2f}%)", fontsize=12)
 
         """Changing the scales for the x- and y-axis so that all generated plots are on the same scale for comparison"""
-        # plt.xlim(-300, 400)
-        # plt.ylim(-80, 100)
+        # ax.set_xlim(-300, 400)
+        # ax.set_ylim(-80, 100)
 
-        # plt.xlim(-20, 40)
-        # plt.ylim(-15, 25)
+        # ax.set_xlim(-20, 40)
+        # ax.set_ylim(-15, 25)
 
-    """YOU WILL NEED TO CHANGE THIS!"""
-    save_plot(plt, f"2D {dataset_name} Results.png", dataset_name,
-              os.path.join(r"C:\Users\tnt02\OneDrive\Documents\Masters Research\Running Data\Last Run"))
+    fig_2D_scatter.savefig(path_to_output / f'2D_{dataset_name}_Results.png')
 
-    plt.close()
+
+"""Utility functions that are more general purpose."""
 
 
 def shift_row(row):
@@ -1794,6 +1813,9 @@ def sanitize_filename(filename):
     return filename
 
 
+"""I dont think I need these anymore"""
+
+
 def save_plot(fig_or_plt, filename, dataset_name, folder_path=""):
     """
     Purpose: This function takes in a figure or a plot along with a filename and path to save each of the generated
@@ -1860,7 +1882,10 @@ def save_tables(table_data, name_cluster_data, dataset_name, folder_path=""):
     table_df.to_excel(os.path.join(folder_path, pca_components_filename), sheet_name='sheet1', index=False)
 
 
-"""These additional functions probably won't be of any use to you."""
+"""These additional functions probably won't be of any use to you. - Included them for additional reference but these 
+avenues were abandoned in the research process. - Determined manifold learning techniques were not worthwhile for our
+tensile datasets. The trends that were these techniques picked up on were not representative of the dataset but rather 
+the noise in the datasets therefore we did not obtain accurate models/results."""
 
 
 def kpca_embeddings(data, num_components, kernel='rbf', gamma=None):
@@ -1986,6 +2011,11 @@ def tsne_embeddings(data, num_components):
     return tsne_results, cumulative_variance_tsne
 
 
+"""This function became no longer useful in later iterations. The heatmap function was used in the beginning of the 
+project to visualize cluster assignments, however, as we developed our analysis further we looked into better ways to 
+interpret results."""
+
+
 def heatmap(cluster_data, sample_names, components_list):
     """
      Purpose: This function takes in the data from the clustering, the names of the polymers, and the number of PCs used
@@ -2015,6 +2045,11 @@ def heatmap(cluster_data, sample_names, components_list):
     )
 
     fig.show()
+
+
+"""This function was never fully finished. I decided to keep it because it dives into the linear algebra utilized by 
+the LDA algorithm. The goal was to trouble shoot some funky looking results that I got from a preliminary dataset. This 
+ was abandoned because I figured out the problem before I was able to finish this function."""
 
 
 def lda_hand_calculations(data, sample_names):
@@ -2128,4 +2163,3 @@ def lda_hand_calculations(data, sample_names):
 
     # Sw.to_excel(r'C:\Users\tnt02\OneDrive\Desktop\Masters Research\Running Data\Last Run\Excel '
     #       r'Files\Within-Class Scatter Matrix hand calc.xlsx', sheet_name='sheet1', index=False)
-
