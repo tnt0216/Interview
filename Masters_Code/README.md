@@ -31,7 +31,7 @@ About the Datasets:
 - We investigated the impact of high-frequency data on our results to determine if it was worthwhile to perform larger frequency sweeps. We determined that it was not worthwhile to pursue, however, the code and high-res dataset has been included and can be run through the "high_res_rheology_main" using the "High Precision 2055-2060 Series 170C.xlsx" dataset.
   -  Original Dimenions high-res 170°C rheology dataset = 150 (50 datapoints collected x3 for storage, loss, viscosity)
 
-*In addition to these rheology datasets I have included Excel files within the Rheology folder that were used to create truncation graphs, and Ed's histograms (experimental approach to assessing similarity). To run these Excel files, you will need to run the mains located in the Additional Graphs folder*
+*In addition to these rheology datasets I have included Excel files within the "Rheology" folder that were used to create truncation graphs, and Ed's histograms (experimental approach to assessing similarity). To run these Excel files, you will need to run the mains located in the Additional Graphs folder - These use an old version of how files were organized so are provided for reference only.*
 
   **Tensile - tensile_dataset_main**
 - Four temperature tensile datasets were collected for analysis, which were 24°C, 40°C, 50°C, and 70°C, respectively. These datasets had to be adjusted in preprocessing so that they did not contain negative values, each test contained the same number of sampled datapoints/dimensions, and each of the datapoints being compared to each other corresponded to the same strain value, the first dimension/first value in each test was set to zero and following datapoints were shifted accordingly.
