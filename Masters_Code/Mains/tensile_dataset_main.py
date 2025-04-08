@@ -3,16 +3,16 @@ import pandas as pd
 import warnings
 
 from sklearn.preprocessing import StandardScaler
-from functions import load_embeddings_tensile
-from functions import run_clustering_analysis
-from functions import plot_2D
-from functions import pearson_correlation
-from functions import distance_radii
-from functions import stress_strain_plots
-from functions import preprocessing_tensile_data
-from functions import interpolation
-from functions import making_output_folders
-from functions import path_to_input_ten
+from Masters_Code.functions import load_embeddings_tensile
+from Masters_Code.functions import run_clustering_analysis
+from Masters_Code.functions import plot_2D
+from Masters_Code.functions import pearson_correlation
+from Masters_Code.functions import distance_radii
+from Masters_Code.functions import stress_strain_plots
+from Masters_Code.functions import preprocessing_tensile_data
+from Masters_Code.functions import interpolation
+from Masters_Code.functions import making_output_folders
+from Masters_Code.functions import path_to_input_ten
 
 
 def main():
@@ -26,25 +26,25 @@ def main():
     path_to_output = making_output_folders()
 
     """Loading excel file"""
-    valid_file = "F"
-    while valid_file == "F":
+    valid_file = False
+    while not valid_file:
 
         file_chosen = str(input('\n\nWhich dataset would you like to run (24, 40, 50, or 70)?'))
 
         if file_chosen == "24":
-            valid_file = "T"
+            valid_file = True
             dataset_chosen = "Tensile Data 2055-2060 24C.xlsx"
             raw_data = path_to_input_ten / dataset_chosen
         elif file_chosen == "40":
-            valid_file = "T"
+            valid_file = True
             dataset_chosen = "Tensile Data 2055-2060 40C.xlsx"
             raw_data = path_to_input_ten / dataset_chosen
         elif file_chosen == "50":
-            valid_file = "T"
+            valid_file = True
             dataset_chosen = "Tensile Data 2055-2060 50C.xlsx"
             raw_data = path_to_input_ten / dataset_chosen
         elif file_chosen == "70":
-            valid_file = "T"
+            valid_file = True
             dataset_chosen = "Tensile Data 2055-2060 70C.xlsx"
             raw_data = path_to_input_ten / dataset_chosen
         else:
@@ -112,11 +112,11 @@ def main():
                                                                            dev_data, method1, original_ranges, path_to_output)
 
     """Saving results to Excel files"""
-    correlations_lda.to_excel(path_to_output / 'Excel Files' / 'LDA' / 'Pearson_Correlation_Coefficients_LDA.xlsx',
+    correlations_lda.to_excel(path_to_output / 'Excel_Files' / 'LDA' / 'Pearson_Correlation_Coefficients_LDA.xlsx',
                               sheet_name='sheet1', index=False)
-    error_lda.to_excel(path_to_output / 'Excel Files' / 'LDA' / 'Error_Calculations_LDA.xlsx', sheet_name='sheet1',
+    error_lda.to_excel(path_to_output / 'Excel_Files' / 'LDA' / 'Error_Calculations_LDA.xlsx', sheet_name='sheet1',
                        index=False)
-    averaged_values_lda.to_excel(path_to_output / 'Excel Files' / 'LDA' / 'Average_Calculations_LDA.xlsx',
+    averaged_values_lda.to_excel(path_to_output / 'Excel_Files' / 'LDA' / 'Average_Calculations_LDA.xlsx',
                                  sheet_name='sheet1', index=False)
 
     """Distances for LDA"""
@@ -145,11 +145,11 @@ def main():
                                                                            dev_data, method2, original_ranges, path_to_output)
 
     """Saving the results to Excel files"""
-    correlations_pca.to_excel(path_to_output / 'Excel Files' / 'PCA' / 'Pearson_Correlation_Coefficients_LDA.xlsx',
+    correlations_pca.to_excel(path_to_output / 'Excel_Files' / 'PCA' / 'Pearson_Correlation_Coefficients_LDA.xlsx',
                               sheet_name='sheet1', index=False)
-    error_pca.to_excel(path_to_output / 'Excel Files' / 'PCA' / 'Error_Calculations_LDA.xlsx', sheet_name='sheet1',
+    error_pca.to_excel(path_to_output / 'Excel_Files' / 'PCA' / 'Error_Calculations_LDA.xlsx', sheet_name='sheet1',
                        index=False)
-    averaged_values_pca.to_excel(path_to_output / 'Excel Files' / 'PCA' / 'Average_Calculations_LDA.xlsx',
+    averaged_values_pca.to_excel(path_to_output / 'Excel_Files' / 'PCA' / 'Average_Calculations_LDA.xlsx',
                                  sheet_name='sheet1', index=False)
 
     """Distances for PCA"""
