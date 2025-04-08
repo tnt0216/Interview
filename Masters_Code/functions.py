@@ -20,8 +20,8 @@ from sklearn.decomposition import KernelPCA
 from pathlib import Path
 
 """This is for input files"""
-path_to_input_rhe = Path(__file__).parent / 'Excel Files' / 'Rheology'
-path_to_input_ten = Path(__file__).parent / 'Excel Files' / 'Tensile'
+path_to_input_rhe = Path(__file__).parent / 'Excel_Files' / 'Rheology'
+path_to_input_ten = Path(__file__).parent / 'Excel_Files' / 'Tensile'
 
 
 def making_output_folders():
@@ -30,7 +30,7 @@ def making_output_folders():
 
     """Creating subfolders within the output folder"""
     subfolders = ['Stress Strain Plots', 'Rheology Plots', 'Dim Weights', 'Per Var-Dis', 'Comparing Ed Data',
-                  'Clustering Opt', 'Excel Files']
+                  'Clustering Opt', 'Excel_Files']
     for folder in subfolders:
         (path_to_output / folder).mkdir(exist_ok=True)  # Making subfolders
 
@@ -38,14 +38,12 @@ def making_output_folders():
         if folder == 'Clustering Opt':
             (path_to_output / folder / 'Elbow Method').mkdir(exist_ok=True)
             (path_to_output / folder / 'Silhouette Scores').mkdir(exist_ok=True)
-        elif folder == 'Excel Files':
+        elif folder == 'Excel_Files':
             (path_to_output / folder / 'PCA').mkdir(exist_ok=True)
             (path_to_output / folder / 'LDA').mkdir(exist_ok=True)
         elif folder == 'Stress Strain Plots':
             (path_to_output / folder / 'Group Polymer Lot').mkdir(exist_ok=True)
             (path_to_output / folder / 'Ind Polymer Lot').mkdir(exist_ok=True)
-
-
 
     print("")
     print("This is the file path for the outputs folder:", path_to_output)
@@ -462,7 +460,7 @@ def interpolation(stress_data, strain_data):
     """
 
     """Asking user for input"""
-    num_datapoints = int(input('\n\nHow many datapoints would you like to use for interpolation?'))
+    num_datapoints = int(input('\n\nHow many datapoints would you like to use for interpolation?\n'))
 
     """Creating new dataframes to put the interpolated data in"""
     interpolated_stress = []
@@ -793,7 +791,7 @@ def pca_embeddings(data, dataset_name, path_to_output, num_components):
     num_features = data.shape[1]
 
     results = pd.DataFrame(result)
-    results.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / 'Eigenvectors_PCA_embeddings.xlsx',
+    results.to_excel(path_to_output / 'Excel_Files' / f'{dataset_name}' / 'Eigenvectors_PCA_embeddings.xlsx',
                      sheet_name='sheet1', index=False)
 
     """Checking if there's only one component (PC) because then we do not use subplots. If there is more than one 
@@ -898,7 +896,7 @@ def lda_embeddings(data, sample_names, dataset_name, path_to_output, num_compone
     """Print Check"""
     # print("Here is the mean for lda embeddings:", lda_mean_embeddings)
 
-    lda_mean_embeddings_df.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / 'Mean_Vectors_LDA_embeddings.xlsx',
+    lda_mean_embeddings_df.to_excel(path_to_output / 'Excel_Files' / f'{dataset_name}' / 'Mean_Vectors_LDA_embeddings.xlsx',
                                     sheet_name='sheet1', index=False)
 
     eigenvectors = lda.scalings_
@@ -916,7 +914,7 @@ def lda_embeddings(data, sample_names, dataset_name, path_to_output, num_compone
     # print(eigenvectors.shape)
 
     eigenvectors_df = pd.DataFrame(eigenvectors)
-    eigenvectors_df.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / 'Eigenvectors_LDA_embeddings.xlsx',
+    eigenvectors_df.to_excel(path_to_output / 'Excel_Files' / f'{dataset_name}' / 'Eigenvectors_LDA_embeddings.xlsx',
                              sheet_name='sheet1', index=False)
 
     """Print Check"""
@@ -1117,7 +1115,7 @@ def run_clustering_analysis(data, num_components_range, sample_names, dataset_na
 
     """This loops through all of the various PCA tests for the original dataset"""
     """YOU WILL NEED TO CHANGE THIS!"""
-    with pd.ExcelWriter(path_to_output / 'Excel Files' / f'{dataset_name}' / f'{dataset_name}_Cluster_Assignments.xlsx',
+    with pd.ExcelWriter(path_to_output / 'Excel_Files' / f'{dataset_name}' / f'{dataset_name}_Cluster_Assignments.xlsx',
                         engine='xlsxwriter') as writer:
 
         for num_components in num_components_range:
@@ -1200,8 +1198,8 @@ def run_clustering_analysis(data, num_components_range, sample_names, dataset_na
     name_cluster_data['Cluster Assignments'] = kmeans.labels_
 
     """Saving the clustering results in to excel files"""
-    name_cluster_data.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / f'Cluster_Assignments_{dataset_name}.xlsx')
-    table_data_df.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / f'Opt_Components_Table_{dataset_name}.xlsx')
+    name_cluster_data.to_excel(path_to_output / 'Excel_Files' / f'{dataset_name}' / f'Cluster_Assignments_{dataset_name}.xlsx')
+    table_data_df.to_excel(path_to_output / 'Excel_Files' / f'{dataset_name}' / f'Opt_Components_Table_{dataset_name}.xlsx')
 
     """Commented out because no longer using for analysis - would probably need to be updated to run properly"""
     # heatmap(cluster_data, sample_names, pca_components_list)
@@ -1590,7 +1588,7 @@ def distance_radii(polymer_lots, result, ranges, dataset_name, num_components, p
     # print(result)
 
     """Saving the DataFrame to an Excel file"""
-    result.to_excel(path_to_output / 'Excel Files' / f'{dataset_name}' / f'Distance_Radii_Table_{dataset_name}.xlsx', sheet_name='sheet1',
+    result.to_excel(path_to_output / 'Excel_Files' / f'{dataset_name}' / f'Distance_Radii_Table_{dataset_name}.xlsx', sheet_name='sheet1',
                     index=False)
 
     """Print Check"""

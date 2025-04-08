@@ -2,13 +2,13 @@
 import pandas as pd
 import warnings
 
-from functions import load_embeddings_rheology, distance_radii
-from functions import initial_data_graphs_rheology
-from functions import run_clustering_analysis
-from functions import pearson_correlation
-from functions import plot_2D
-from functions import making_output_folders
-from functions import path_to_input_rhe
+from Masters_Code.functions import load_embeddings_rheology, distance_radii
+from Masters_Code.functions import initial_data_graphs_rheology
+from Masters_Code.functions import run_clustering_analysis
+from Masters_Code.functions import pearson_correlation
+from Masters_Code.functions import plot_2D
+from Masters_Code.functions import making_output_folders
+from Masters_Code.functions import path_to_input_rhe
 
 
 def main():
@@ -22,21 +22,21 @@ def main():
     path_to_output = making_output_folders()
 
     """Loading excel file"""
-    valid_file = "F"
-    while valid_file == "F":
+    valid_file = False
+    while not valid_file:
 
-        file_chosen = str(input('\n\nWhich dataset would you like to run (70, 120, or 170)?'))
+        file_chosen = str(input('\n\nWhich dataset would you like to run (70, 120, or 170)?\n'))
 
         if file_chosen == "70":
-            valid_file = "T"
+            valid_file = True
             dataset_chosen = "2055-2060 Series 70C Batch 2 Outliers.xlsx"
             raw_data = path_to_input_rhe / dataset_chosen
         elif file_chosen == "120":
-            valid_file = "T"
+            valid_file = True
             dataset_chosen = "2055-2060 Series 120C Batch 2 Outliers.xlsx"
             raw_data = path_to_input_rhe / dataset_chosen
         elif file_chosen == "170":
-            valid_file = "T"
+            valid_file = True
             dataset_chosen = "2055-2060 Series 170C Batch 2 Outliers.xlsx"
             raw_data = path_to_input_rhe / dataset_chosen
         else:
@@ -111,9 +111,9 @@ def main():
                                                                            cumulative_variance_lda, dev_data, method1,
                                                                            original_ranges, path_to_output)
 
-    correlations_lda.to_excel(path_to_output / 'Excel Files' / 'LDA' / 'Pearson_Correlation_Coefficients_LDA.xlsx', sheet_name='sheet1', index=False)
-    error_lda.to_excel(path_to_output / 'Excel Files' / 'LDA' / 'Error_Calculations_LDA.xlsx', sheet_name='sheet1', index=False)
-    averaged_values_lda.to_excel(path_to_output / 'Excel Files' / 'LDA' / 'Average_Calculations_LDA.xlsx', sheet_name='sheet1', index=False)
+    correlations_lda.to_excel(path_to_output / 'Excel_Files' / 'LDA' / 'Pearson_Correlation_Coefficients_LDA.xlsx', sheet_name='sheet1', index=False)
+    error_lda.to_excel(path_to_output / 'Excel_Files' / 'LDA' / 'Error_Calculations_LDA.xlsx', sheet_name='sheet1', index=False)
+    averaged_values_lda.to_excel(path_to_output / 'Excel_Files' / 'LDA' / 'Average_Calculations_LDA.xlsx', sheet_name='sheet1', index=False)
 
     """We want to calculate the distances and standard deviations for the polymer clusters at the given num components"""
     lda_result = lda_result.iloc[:, :num_components]
@@ -144,9 +144,9 @@ def main():
                                                                            dev_data, method2, original_ranges, path_to_output)
 
     """Saving the DataFrame to an Excel file"""
-    correlations_pca.to_excel(path_to_output / 'Excel Files' / 'PCA' / 'Pearson_Correlation_Coefficients_PCA.xlsx', sheet_name='sheet1', index=False)
-    error_pca.to_excel(path_to_output / 'Excel Files' / 'PCA' / 'Error_Calculations_PCA.xlsx', sheet_name='sheet1', index=False)
-    averaged_values_pca.to_excel(path_to_output / 'Excel Files' / 'PCA' / 'Average_Calculations_PCA.xlsx', sheet_name='sheet1', index=False)
+    correlations_pca.to_excel(path_to_output / 'Excel_Files' / 'PCA' / 'Pearson_Correlation_Coefficients_PCA.xlsx', sheet_name='sheet1', index=False)
+    error_pca.to_excel(path_to_output / 'Excel_Files' / 'PCA' / 'Error_Calculations_PCA.xlsx', sheet_name='sheet1', index=False)
+    averaged_values_pca.to_excel(path_to_output / 'Excel_Files' / 'PCA' / 'Average_Calculations_PCA.xlsx', sheet_name='sheet1', index=False)
 
     """We want to calculate the distances and standard deviations for the polymer clusters at the given num components"""
     pca_result = pca_result.iloc[:, :num_components]
