@@ -18,6 +18,7 @@ Additional Graphs: Contains a few short scripts for additional graphs we wanted 
 Excel Files: Contains all of the final data used for our scientific journal and my thesis. Subfolders are separating the rheological and tensile datasets.
 
 About the Datasets:
+
 **Rheology - rheology_dataset_main**
 - The rheology datasets were the primary datasets used in our analysis and were the focus of the research journal and thesis. There were three rheology datasets for temperatures of 70°C, 120°C, and 170°C used by "rheology_dataset_main". Each of these datasets had undergone data preprocessing by applying Chavunet's Criteria to identify outliers in the dataset. These outliers were taken completely out before running the data through these scripts. We compared our results to an experimental approach of assessing rheological similarity through the crossover point and zero-shear viscosity. These outliers were not included and handled in this code because we wanted to have identical datasets to the experimental approach for direct comparisons of performance.
   - Original Dimenions 70°C rheology dataset = 39 (13 datapoints collected x3 for storage, loss, viscosity)
