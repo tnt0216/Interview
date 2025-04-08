@@ -2,14 +2,14 @@
 import pandas as pd
 import warnings
 
-from functions import load_embeddings_rheology
-from functions import initial_data_graphs_high_res_rheology
-from functions import run_clustering_analysis
-from functions import pearson_correlation
-from functions import plot_2D
-from functions import distance_radii
-from functions import making_output_folders
-from functions import path_to_input_rhe
+from Masters_Code.functions import load_embeddings_rheology
+from Masters_Code.functions import initial_data_graphs_high_res_rheology
+from Masters_Code.functions import run_clustering_analysis
+from Masters_Code.functions import pearson_correlation
+from Masters_Code.functions import plot_2D
+from Masters_Code.functions import distance_radii
+from Masters_Code.functions import making_output_folders
+from Masters_Code.functions import path_to_input_rhe
 
 
 def main():
@@ -71,10 +71,10 @@ def main():
                                                                            cumulative_variance_lda, dev_data, method1,
                                                                            original_ranges, path_to_output)
 
-    correlations_lda.to_excel(path_to_output / 'Excel Files' / 'Pearson Correlation Coefficients LDA.xlsx',
+    correlations_lda.to_excel(path_to_output / 'Excel_Files' / 'Pearson Correlation Coefficients LDA.xlsx',
                               sheet_name='sheet1', index=False)
-    error_lda.to_excel(path_to_output / 'Excel Files' / 'Error Calculations LDA.xlsx', sheet_name='sheet1', index=False)
-    averaged_values_lda.to_excel(path_to_output / 'Excel Files' / 'Average Calculations LDA.xlsx', sheet_name='sheet1',
+    error_lda.to_excel(path_to_output / 'Excel_Files' / 'Error Calculations LDA.xlsx', sheet_name='sheet1', index=False)
+    averaged_values_lda.to_excel(path_to_output / 'Excel_Files' / 'Average Calculations LDA.xlsx', sheet_name='sheet1',
                                  index=False)
 
     """We want to calculate the distances and standard deviations for the polymer cluster at the given num components"""
@@ -105,10 +105,10 @@ def main():
                                                                            cumulative_variance_pca,
                                                                            dev_data, method2, original_ranges, path_to_output)
 
-    correlations_pca.to_excel(path_to_output / 'Excel Files' / 'Pearson Correlation Coefficients PCA.xlsx',
+    correlations_pca.to_excel(path_to_output / 'Excel_Files' / 'Pearson Correlation Coefficients PCA.xlsx',
                               sheet_name='sheet1', index=False)
-    error_pca.to_excel(path_to_output / 'Excel Files' / 'Error Calculations PCA.xlsx', sheet_name='sheet1', index=False)
-    averaged_values_pca.to_excel(path_to_output / 'Excel Files' / 'Average Calculations PCA.xlsx', sheet_name='sheet1',
+    error_pca.to_excel(path_to_output / 'Excel_Files' / 'Error Calculations PCA.xlsx', sheet_name='sheet1', index=False)
+    averaged_values_pca.to_excel(path_to_output / 'Excel_Files' / 'Average Calculations PCA.xlsx', sheet_name='sheet1',
                                  index=False)
 
     """Distances for PCA"""
